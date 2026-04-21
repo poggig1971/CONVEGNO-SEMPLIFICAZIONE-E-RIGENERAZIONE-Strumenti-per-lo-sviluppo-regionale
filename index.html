@@ -2655,6 +2655,17 @@ function toInt(str, def = 0) {
   const n = parseInt(str, 10);
   return isNaN(n) ? def : n;
 }
+// Normalizza un id: Google Sheets rimuove gli zeri iniziali ai numeri.
+// "6" → "06", "8a" → "08a", "10" → "10", "08c" → "08c" (inv.)
+function normalizeId(id) {
+  const s = String(id || "").trim();
+  if (!s) return "";
+  if (/^0\d/.test(s)) return s;                          // già ok: "06", "08a"
+  if (/^\d+$/.test(s)) return s.padStart(2, "0");         // "6" → "06", "10" → "10"
+  const m = s.match(/^(\d+)([a-zA-Z]+)$/);
+  if (m) return m[1].padStart(2, "0") + m[2].toLowerCase(); // "8a" → "08a"
+  return s;
+}
 function toTranscript(str) {
   // Accetta sia formato libero (una riga sola) sia formato "HH:MM:SS|testo\nHH:MM:SS|testo"
   if (!str) return [["00:00:00", "—"]];
@@ -2696,7 +2707,7 @@ async function loadFromSheet() {
     // Converto righe Interventi
     if (rowsInt && rowsInt.length) {
       INTERVENTI = rowsInt.map(r => ({
-        id: r.id || "",
+        id: normalizeId(r.id),
         time: r.time || "",
         duration: r.duration || "",
         ts_range: r.ts_range || "",
@@ -3031,7 +3042,7 @@ function buildSaluti() {
 const SEZIONI = [
   { label: "Introduzione", ids: ["06"] },
   { label: "IL CRESCI PIEMONTE · L.R. 5/2026", ids: ["07"] },
-  { label: "La L.R. 16/2018 · rigenerazione urbana", ids: ["08"] },
+  { label: "La L.R. 16/2018 · rigenerazione urbana", ids: ["08a", "08b", "08c"] },
   { label: "Un esempio concreto · Beinette (CN)", ids: ["09", "10"] },
   { label: "Aggiornamento sulla L.R. 56/1977", ids: ["11"] },
   { label: "Dibattito", ids: ["12"] },
