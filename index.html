@@ -2730,7 +2730,10 @@ async function loadFromSheet() {
     ]);
 
     // Converto righe Interventi
+    // Converto righe Interventi
     if (rowsInt && rowsInt.length) {
+      console.log(`[ANCE] Righe grezze dal Sheet "Interventi": ${rowsInt.length}`);
+      console.log(`[ANCE] Prima riga grezza:`, rowsInt[0]);
       INTERVENTI = rowsInt.map(r => ({
         id: normalizeId(r.id),
         time: r.time || "",
@@ -2754,7 +2757,8 @@ async function loadFromSheet() {
         slideText: r.slideText || "",
         transcript: toTranscript(r.transcript),
         abstract: r.abstract || ""
-      }));
+      })).filter(i => i.id);  // scarta righe con id vuoto/mancante
+      console.log(`[ANCE] Interventi normalizzati (${INTERVENTI.length}):`, INTERVENTI.map(i => `#${i.id}@${i.time} ${i.relatore}`).join(" · "));
       // Preservo extraSlides per l'intervento 08 (Mola/Silva/Trifirò) - hardcoded nei default
       const i08 = DEFAULT_INTERVENTI.find(x => x.id === "08");
       const newI08 = INTERVENTI.find(x => x.id === "08");
@@ -2910,7 +2914,13 @@ function buildTimeline() {
       goToIntervento(i);
     });
   });
+  // Reset scroll orizzontale (alcuni browser ripristinano la posizione da cache e nascondono i primi nodi)
+  const tl = document.querySelector(".timeline");
+  if (tl) tl.scrollLeft = 0;
+  console.log(`[ANCE] Timeline: ${t.querySelectorAll(".tl-node").length} nodi renderizzati`);
 }
+
+/* ═══════════════════════ MONITOR ═══════════════════════ */
 
 /* ═══════════════════════ MONITOR ═══════════════════════ */
 function buildMonitors() {
