@@ -1813,7 +1813,7 @@ html, body {
         </div>
       </div>
       <div class="header-right">
-        <span class="header-pill"><strong>3</strong> CFP · ING · ARCH · GEOM</span>
+        <img src="loghi.png" alt="Patrocini e collaborazioni" style="height:30px; width:auto; max-width:520px; background:#fff; padding:4px 10px; border-radius:5px; border:1px solid rgba(255,255,255,0.18)" onerror="this.style.display='none'">
         <button class="header-collapse-btn" id="headerCollapse" title="Nascondi header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
         </button>
@@ -1938,6 +1938,7 @@ html, body {
               <span>📍 <strong>Centro Congressi Regione Piemonte</strong></span>
               <span>⏱ <strong>09:00 — 13:00</strong></span>
               <span>🎙 <strong>16 relatori</strong></span>
+              <span>📜 <strong>3 CFP · ING · ARCH · GEOM</strong></span>
               <span>⚖ <strong>Modera: Filomena Greco · Il Sole 24 Ore</strong></span>
             </div>
           </div>
@@ -2135,6 +2136,19 @@ html, body {
                 <div class="rel-stat-val" id="relSlides">—</div>
               </div>
             </div>
+
+            <div id="relPortrait" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border)">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-faint); letter-spacing:0.08em; text-transform:uppercase; font-weight:500; margin-bottom:8px">📷 Slide di riferimento</div>
+              <a id="relPortraitLink" href="#" target="_blank" rel="noopener" style="display:block; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:var(--bg-soft); position:relative; text-decoration:none">
+                <img id="relPortraitImg" src="" alt="Slide dell'intervento" style="width:100%; display:block; transition:opacity .2s" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div style="display:none; padding:30px; text-align:center; color:var(--text-faint); font-size:12px; flex-direction:column; gap:4px">
+                  <span style="font-size:22px">🖼️</span>
+                  <span>Immagine non disponibile</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px">controlla permessi Drive</span>
+                </div>
+                <div style="position:absolute; top:6px; right:6px; background:rgba(0,0,0,0.55); color:#fff; padding:3px 7px; border-radius:3px; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.05em">↗ APRI</div>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -2276,14 +2290,26 @@ html, body {
 const DRIVE = {
   folderMain: "1izn5Dj7FNtCRl3whK5MmDYjR94CCYuCg",
   folderSlide: "10RMCbM4spao40bKUulZMX214PzFYlNH_",
+  folderImmagini: "1eTZFuGcCOFZBb2EnDiuxiZQ9jk7TcPgU",
   locandina: "1PwFuHqG7dlfnood3ZgHW_69vNo626UoY",
   slideFileUnico: "1ohJfzAuP-grJO_bw_zWgSJt8hWIzeJhc",
   slideCopertina: "1pDNS-VEZ7g_8g65mgY7NF_FztnLQvuCM"
+};
+// Immagini JPG esportate dalle slide saluti (una per relatore)
+const IMG_SALUTI = {
+  header:   "1GXkcIo1rSBaNvA_tDMRdwA5xx8frvJBh", // Diapositiva2 · header "Saluti istituzionali"
+  slide3:   "1EPq_Pv326Y7GSeCL8B0fFomehNUDz-ux", // Diapositiva3
+  slide4:   "14tuGYKUxpPhNWGTXSVbfJxnyJ8gG1qGf", // Diapositiva4
+  slide5:   "10W-8UdD_YO66vX_xqLHFZBPgw1x4K6uH", // Diapositiva5
+  slide6:   "1GDK1KjiLR33dJzdireEQLX5pMN_h1MAU", // Diapositiva6
+  slide7:   "1nZgw-ql-hjEqgqVYChqvQ0wArq46xLov"  // Diapositiva7
 };
 function drivePreview(id) { return id ? `https://drive.google.com/file/d/${id}/preview` : null; }
 function driveView(id) { return id ? `https://drive.google.com/file/d/${id}/view` : null; }
 function driveDownload(id) { return id ? `https://drive.google.com/uc?export=download&id=${id}` : null; }
 function driveFolder(id) { return `https://drive.google.com/drive/folders/${id}`; }
+// Immagine diretta da Drive (thumbnail CDN Google, dimensione in pixel)
+function driveImage(id, w = 600) { return id ? `https://lh3.googleusercontent.com/d/${id}=w${w}` : null; }
 
 // Ordine reale dei saluti: Gallo, Malabaila, Amalberto, Marrone, Cavassa
 // Quote: estratti dal comunicato stampa ANCE Piemonte VdA · 2026.04.21 dove verificati
@@ -2313,6 +2339,7 @@ const INTERVENTI = [
     bio: "Assessore regionale all'Urbanistica, Programmazione territoriale, Sport e Personale. Apre i lavori del convegno. Interviene anche nel dibattito conclusivo e tiene l'intervento finale di conclusioni.",
     slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
     slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    portraitImageId: "1GXkcIo1rSBaNvA_tDMRdwA5xx8frvJBh",
     podTitle: "Apertura dei lavori · visione politica", podSub: "sintesi · da generare",
     transcript: [
       ["00:30:00", "[Trascrizione da produrre · apertura Assessore Gallo]"]
@@ -2324,6 +2351,7 @@ const INTERVENTI = [
     bio: "Presidente di ANCE Piemonte Valle d'Aosta. Imprenditrice del settore edile, attiva nel sistema confindustriale regionale. Interviene anche nel dibattito conclusivo.",
     slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
     slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    portraitImageId: "1GXkcIo1rSBaNvA_tDMRdwA5xx8frvJBh",
     podTitle: "La voce dei costruttori", podSub: "sintesi · da generare",
     transcript: [
       ["00:35:00", "[Trascrizione da produrre · saluto Presidente Malabaila]"]
@@ -2335,6 +2363,7 @@ const INTERVENTI = [
     bio: "Presidente di Confindustria Piemonte, rappresenta il sistema industriale regionale.",
     slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
     slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    portraitImageId: "1GXkcIo1rSBaNvA_tDMRdwA5xx8frvJBh",
     podTitle: "Semplificazione come leva industriale", podSub: "sintesi · da generare",
     transcript: [
       ["00:40:00", "[Trascrizione da produrre · saluto Presidente Amalberto]"]
@@ -2346,6 +2375,7 @@ const INTERVENTI = [
     bio: "Vicepresidente Regione Piemonte. Assessore con deleghe a: Politiche sociali e integrazione socio-sanitaria, Emigrazione e cooperazione decentrata e internazionale, Usura e beni confiscati, Politiche della casa, delle famiglie e dei bambini, Lavoro e welfare aziendale. Interviene in sostituzione del Presidente Cirio indicato in locandina.",
     slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
     slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    portraitImageId: "1GXkcIo1rSBaNvA_tDMRdwA5xx8frvJBh",
     podTitle: "Il saluto del Vicepresidente Marrone", podSub: "sintesi · da generare",
     transcript: [
       ["00:45:00", "[Trascrizione da produrre · saluto Vicepresidente Marrone]"]
@@ -2357,6 +2387,7 @@ const INTERVENTI = [
     bio: "Vicepresidente di ANCI Piemonte. Porta il saluto dei Comuni piemontesi in sostituzione del Presidente Gilardino. Interviene anche nel panel conclusivo (#12).",
     slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
     slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    portraitImageId: "1GXkcIo1rSBaNvA_tDMRdwA5xx8frvJBh",
     podTitle: "I Sindaci e la riforma urbanistica", podSub: "sintesi · da generare",
     transcript: [
       ["00:50:00", "[Trascrizione da produrre · saluto ANCI Piemonte]"]
@@ -2811,6 +2842,17 @@ function selectIntervento(i) {
   document.getElementById("relBio").textContent = i.bio;
   document.getElementById("relDur").textContent = i.duration;
   document.getElementById("relSlides").textContent = i.slidesCount + " slide";
+
+  // Portrait / slide immagine sotto il dossier
+  const portrait = document.getElementById("relPortrait");
+  if (i.portraitImageId) {
+    portrait.style.display = "block";
+    document.getElementById("relPortraitImg").src = driveImage(i.portraitImageId, 600);
+    document.getElementById("relPortraitImg").style.display = "block";
+    document.getElementById("relPortraitLink").href = driveView(i.portraitImageId);
+  } else {
+    portrait.style.display = "none";
+  }
 
   // Trascrizione
   document.getElementById("trTotal").textContent = i.transcript.length + " segmenti";
