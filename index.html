@@ -1809,8 +1809,15 @@ html, body {
   margin-bottom: 4px;
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
+
+
+<!-- Stato di caricamento dati da Google Sheets -->
+<div id="loadingStatus" style="position:fixed; bottom:20px; right:20px; padding:8px 14px; background:#eff6ff; color:#1e3a8a; border:1px solid #93c5fd; border-radius:6px; font-family:'IBM Plex Mono',monospace; font-size:11px; z-index:2000; box-shadow:0 2px 8px rgba(0,0,0,0.08); transition: opacity .3s">
+  Caricamento dati…
+</div>
 
 <div class="app" id="app">
 
@@ -2314,7 +2321,7 @@ function driveImage(id, w = 600) { return id ? `https://lh3.googleusercontent.co
 
 // Ordine reale dei saluti: Gallo, Malabaila, Amalberto, Marrone, Cavassa
 // Quote: estratti dal comunicato stampa ANCE Piemonte VdA · 2026.04.21 dove verificati
-const SALUTI = [
+const DEFAULT_SALUTI = [
   { initials: "MG", role: "Assessore all'Urbanistica · Regione Piemonte", name: "Marco Gallo",
     quote: "Regole chiare e tempi certi per progettare con fiducia il futuro degli spazi urbani.",
     quoteSource: "Comunicato stampa · 2026.04.21" },
@@ -2332,7 +2339,7 @@ const SALUTI = [
     quoteSource: "In attesa di trascrizione dal video" }
 ];
 
-const INTERVENTI = [
+const DEFAULT_INTERVENTI = [
   { id: "01", time: "09:30", ts_range: "00:30:00 — 00:35:00", duration: "5 min",
     relatore: "Marco Gallo", initials: "MG", role: "Assessore all'Urbanistica · Regione Piemonte",
     titolo: "Saluto e apertura dei lavori", tags: ["saluti"], tagLabels: ["Saluti", "Urbanistica"],
@@ -2499,7 +2506,7 @@ const INTERVENTI = [
     ]}
 ];
 
-const TEMI = [
+const DEFAULT_TEMI = [
   { code: "§ 01", label: "Semplificazione normativa", count: 6 },
   { code: "§ 02", label: "Rigenerazione urbana", count: 5 },
   { code: "§ 03", label: "L.R. 5/2026 Cresci Piemonte", count: 4 },
@@ -2520,10 +2527,132 @@ let currentView = "panorama";
 let currentInspPanel = "relatore";
 let doneInterventi = new Set();
 
-/* ═══════════════════════ BOOT ═══════════════════════ */
-document.addEventListener("DOMContentLoaded", () => {
-  loadProgress();
-  bindHeroLinks();
+
+// Variabili "live" che inizialmente usano i default; loadFromSheet le sostituirà
+let SALUTI = DEFAULT_SALUTI;
+let INTERVENTI = DEFAULT_INTERVENTI;
+let TEMI = DEFAULT_TEMI;
+
+/* ═══════════════════════ GOOGLE SHEETS CONFIG ═══════════════════════ */
+const SHEET_ID = "1h05xTXxa02ihOmQHSPhQYYPTaa54q1f4r16Bfrr6bEI";
+const SHEET_URL = (sheet) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;
+
+function toArray(str, sep = "|") {
+  if (!str) return [];
+  return String(str).split(sep).map(s => s.trim()).filter(Boolean);
+}
+function toInt(str, def = 0) {
+  const n = parseInt(str, 10);
+  return isNaN(n) ? def : n;
+}
+function toTranscript(str) {
+  // Accetta sia formato libero (una riga sola) sia formato "HH:MM:SS|testo\nHH:MM:SS|testo"
+  if (!str) return [["00:00:00", "—"]];
+  const trimmed = String(str).trim();
+  // Se ci sono "\n" interpretabili come newline
+  const lines = trimmed.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length === 0) return [["00:00:00", "—"]];
+  const result = [];
+  for (const line of lines) {
+    const m = line.match(/^(\d{2}:\d{2}:\d{2})\s*[|\t]\s*(.+)$/);
+    if (m) result.push([m[1], m[2]]);
+    else result.push(["00:00:00", line]);
+  }
+  return result.length ? result : [["00:00:00", trimmed]];
+}
+
+async function fetchCSV(sheetName) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(SHEET_URL(sheetName), {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (r) => resolve(r.data),
+      error: (e) => reject(e)
+    });
+  });
+}
+
+async function loadFromSheet() {
+  const status = document.getElementById("loadingStatus");
+  if (status) status.textContent = "Caricamento dati da Google Sheets…";
+  try {
+    const [rowsInt, rowsSal, rowsTem] = await Promise.all([
+      fetchCSV("Interventi"),
+      fetchCSV("Saluti"),
+      fetchCSV("Temi")
+    ]);
+
+    // Converto righe Interventi
+    if (rowsInt && rowsInt.length) {
+      INTERVENTI = rowsInt.map(r => ({
+        id: r.id || "",
+        time: r.time || "",
+        duration: r.duration || "",
+        ts_range: r.ts_range || "",
+        relatore: r.relatore || "",
+        initials: r.initials || "",
+        role: r.role || "",
+        titolo: r.titolo || "",
+        cue: r.cue || "",
+        tags: toArray(r.tags),
+        tagLabels: toArray(r.tagLabels),
+        bio: r.bio || "",
+        slideFileId: r.slideFileId || null,
+        slideTitle: r.slideTitle || "—",
+        slideSub: r.slideSub || "",
+        slidesCount: toInt(r.slidesCount),
+        portraitImageId: r.portraitImageId || null,
+        podTitle: r.podTitle || "",
+        podSub: r.podSub || "",
+        slideText: r.slideText || "",
+        transcript: toTranscript(r.transcript),
+        abstract: r.abstract || ""
+      }));
+      // Preservo extraSlides per l'intervento 08 (Mola/Silva/Trifirò) - hardcoded nei default
+      const i08 = DEFAULT_INTERVENTI.find(x => x.id === "08");
+      const newI08 = INTERVENTI.find(x => x.id === "08");
+      if (i08 && newI08 && i08.extraSlides) newI08.extraSlides = i08.extraSlides;
+    }
+
+    // Saluti
+    if (rowsSal && rowsSal.length) {
+      SALUTI = rowsSal.map(r => ({
+        order: toInt(r.order),
+        initials: r.initials || "",
+        name: r.name || "",
+        role: r.role || "",
+        quote: r.quote && r.quote.trim() ? r.quote : null,
+        quoteSource: r.quoteSource || ""
+      })).sort((a, b) => a.order - b.order);
+    }
+
+    // Temi
+    if (rowsTem && rowsTem.length) {
+      TEMI = rowsTem.map(r => ({
+        code: r.code || "",
+        label: r.label || "",
+        count: toInt(r.count),
+        filter_tag: r.filter_tag || ""
+      }));
+    }
+
+    console.log(`✓ Dati caricati da Google Sheets: ${INTERVENTI.length} interventi · ${SALUTI.length} saluti · ${TEMI.length} temi`);
+    if (status) { status.textContent = ""; status.style.display = "none"; }
+    return true;
+  } catch (err) {
+    console.warn("⚠ Caricamento Sheet fallito · uso dati locali di fallback:", err);
+    if (status) {
+      status.textContent = "⚠ Modalità offline · dati locali";
+      status.style.background = "#fef3c7";
+      status.style.color = "#92400e";
+      setTimeout(() => { status.style.display = "none"; }, 4000);
+    }
+    return false;
+  }
+}
+
+function renderAll() {
   buildTimeline();
   buildMonitors();
   buildTemi();
@@ -2531,17 +2660,27 @@ document.addEventListener("DOMContentLoaded", () => {
   buildLista();
   buildPodcastList();
   buildDocs();
+  if (INTERVENTI.length > 0) selectIntervento(INTERVENTI[0]);
+  updateProgress();
+}
+
+/* ═══════════════════════ BOOT ═══════════════════════ */
+document.addEventListener("DOMContentLoaded", async () => {
+  loadProgress();
+  bindHeroLinks();
   buildWaveform();
   bindNav();
   bindInspector();
   bindSearch();
   bindShortcuts();
   bindHeader();
-  selectIntervento(INTERVENTI[0]);
   animateKPI();
-  startMonitorCarousel();
   initPodcast();
-  updateProgress();
+  // Carica dati da Google Sheets (con fallback sui DEFAULT_*)
+  await loadFromSheet();
+  // Render tutte le viste con i dati ottenuti
+  renderAll();
+  startMonitorCarousel();
 });
 
 /* ═══════════════════════ HERO LINKS ═══════════════════════ */
@@ -3018,19 +3157,48 @@ function closeOverlay() {
   document.getElementById("overlay").classList.remove("active");
   document.getElementById("overlaySearchInput").value = "";
 }
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function snippetAround(text, q, radius = 90) {
+  if (!text || !q) return "";
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if (idx < 0) return "";
+  const start = Math.max(0, idx - radius);
+  const end = Math.min(text.length, idx + q.length + radius);
+  let snip = text.substring(start, end);
+  if (start > 0) snip = "… " + snip;
+  if (end < text.length) snip = snip + " …";
+  const re = new RegExp(`(${escapeRegex(q)})`, "ig");
+  return snip.replace(re, '<mark>$1</mark>');
+}
+
 function renderSearchResults() {
   const q = document.getElementById("overlaySearchInput").value.toLowerCase().trim();
   const box = document.getElementById("ovrResults");
-  const filtered = INTERVENTI.filter(i => {
+
+  function searchIn(i, q) {
+    // Ritorna array di { where, snippet } per ogni match trovato
+    const hits = [];
+    if (!q) return [];
+    if (i.relatore.toLowerCase().includes(q)) hits.push({ where: "Relatore", snippet: i.relatore });
+    if (i.titolo.toLowerCase().includes(q)) hits.push({ where: "Titolo", snippet: i.titolo });
+    if (i.tagLabels.join(" ").toLowerCase().includes(q)) hits.push({ where: "Tag", snippet: i.tagLabels.join(" · ") });
+    if (i.role && i.role.toLowerCase().includes(q)) hits.push({ where: "Ruolo", snippet: i.role });
+    if (i.bio && i.bio.toLowerCase().includes(q)) hits.push({ where: "Bio", snippet: snippetAround(i.bio, q) });
+    if (i.abstract && i.abstract.toLowerCase().includes(q)) hits.push({ where: "Abstract", snippet: snippetAround(i.abstract, q) });
+    const trMatch = i.transcript && i.transcript.find(l => l[1].toLowerCase().includes(q));
+    if (trMatch) hits.push({ where: "Trascrizione", snippet: `<strong>${trMatch[0]}</strong> · ${snippetAround(trMatch[1], q, 120)}` });
+    if (i.slideText && i.slideText.toLowerCase().includes(q)) hits.push({ where: "Slide", snippet: snippetAround(i.slideText, q, 140) });
+    return hits;
+  }
+
+  const filtered = INTERVENTI.map(i => {
     const tagOk = ovrFilter === "all" || i.tags.includes(ovrFilter);
-    if (!tagOk) return false;
-    if (!q) return true;
-    return i.relatore.toLowerCase().includes(q) ||
-           i.titolo.toLowerCase().includes(q) ||
-           i.tagLabels.join(" ").toLowerCase().includes(q) ||
-           i.transcript.some(l => l[1].toLowerCase().includes(q)) ||
-           i.bio.toLowerCase().includes(q);
-  });
+    if (!tagOk) return null;
+    if (!q) return { i, hits: [] };
+    const hits = searchIn(i, q);
+    if (hits.length === 0) return null;
+    return { i, hits };
+  }).filter(Boolean);
 
   document.getElementById("ovrCount").textContent = filtered.length + " risultati";
 
@@ -3039,25 +3207,37 @@ function renderSearchResults() {
     return;
   }
 
-  box.innerHTML = filtered.map(i => {
-    let matchHtml = "";
-    if (q) {
-      const match = i.transcript.find(l => l[1].toLowerCase().includes(q));
-      if (match) {
-        const re = new RegExp(`(${q})`, "ig");
-        matchHtml = `<div class="ovr-result-match">${match[0]} · ${match[1].replace(re, '<mark>$1</mark>')}</div>`;
-      }
-    }
+  // Badge colori per tipo di match
+  const badgeColor = {
+    "Slide": "#ea580c",
+    "Trascrizione": "#1e3a8a",
+    "Abstract": "#0891b2",
+    "Bio": "#475569",
+    "Relatore": "#475569",
+    "Titolo": "#475569",
+    "Ruolo": "#475569",
+    "Tag": "#475569"
+  };
+
+  box.innerHTML = filtered.map(({ i, hits }) => {
+    const matchHtml = hits.slice(0, 3).map(h => {
+      const color = badgeColor[h.where] || "#475569";
+      return `<div class="ovr-result-match" style="border-left-color:${color}">
+        <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; font-weight:600; color:${color}; margin-bottom:4px">${h.where}</span>
+        <div>${h.snippet}</div>
+      </div>`;
+    }).join("");
+    const moreCount = hits.length > 3 ? `<div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-faint); margin-top:4px; padding-left:10px">+${hits.length - 3} altre corrispondenze</div>` : "";
     return `
       <div class="ovr-result" data-id="${i.id}">
         <div class="ovr-result-top">
           <span class="ovr-result-time">⏱ ${i.time}</span>
           <span class="ovr-result-id">#${i.id}</span>
-          <span class="ovr-result-tag">${i.tagLabels[0]}</span>
+          <span class="ovr-result-tag">${i.tagLabels[0] || "—"}</span>
         </div>
         <div class="ovr-result-name">${i.relatore}</div>
         <div class="ovr-result-titolo">${i.titolo}</div>
-        ${matchHtml}
+        ${matchHtml}${moreCount}
       </div>
     `;
   }).join("");
@@ -3202,6 +3382,7 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
 
 
 
