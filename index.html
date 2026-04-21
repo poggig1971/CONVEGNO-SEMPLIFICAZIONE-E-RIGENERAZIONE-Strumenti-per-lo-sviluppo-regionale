@@ -3353,9 +3353,9 @@ function renderSearchResults() {
     // Filtro 2: tag pill
     const tagOk = ovrFilter === "all" || i.tags.includes(ovrFilter);
     if (!tagOk) return null;
-    // Se c'è il filtro tema attivo ma nessuna query, mostro tutti gli interventi del tema
-    if (ovrMatchedIds && !q) return { i, hits: [] };
-    // Senza query e senza matchedIds: non mostro nulla (comportamento iniziale)
+    // Senza query ma con QUALSIASI filtro attivo (pill o tema): mostro tutti gli interventi filtrati
+    if (!q && (ovrMatchedIds || ovrFilter !== "all")) return { i, hits: [] };
+    // Senza query e senza alcun filtro: non mostro nulla (schermo iniziale)
     if (!q) return null;
     const hits = searchIn(i, q);
     if (hits.length === 0) return null;
@@ -3368,7 +3368,10 @@ function renderSearchResults() {
     if (ovrMatchedIds && !q) {
       box.innerHTML = `<div class="ovr-empty">Nessun intervento associato a questo tema</div>`;
     } else if (q) {
-      box.innerHTML = `<div class="ovr-empty">Nessun risultato per "<strong>${q}</strong>"${ovrMatchedLabel ? ` dentro il tema <em>${ovrMatchedLabel}</em>` : ""}</div>`;
+      const ctx = ovrMatchedLabel ? ` dentro il tema <em>${ovrMatchedLabel}</em>` : (ovrFilter !== "all" ? ` dentro il filtro attivo` : "");
+      box.innerHTML = `<div class="ovr-empty">Nessun risultato per "<strong>${q}</strong>"${ctx}</div>`;
+    } else if (ovrFilter !== "all") {
+      box.innerHTML = `<div class="ovr-empty">Nessun intervento con questo tag</div>`;
     } else {
       box.innerHTML = `<div class="ovr-empty" style="color:var(--text-faint)">Inizia a digitare o clicca un pill per filtrare</div>`;
     }
@@ -3550,6 +3553,7 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
 
 
 
