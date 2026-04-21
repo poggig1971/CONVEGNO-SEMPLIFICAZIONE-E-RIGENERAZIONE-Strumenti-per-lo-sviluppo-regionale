@@ -367,9 +367,11 @@ html, body {
 .global-player-iframe-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 16/9;
-  max-height: 28vh;
+  height: 28vh;
+  min-height: 200px;
+  max-height: 340px;
   background: #000;
+  flex-shrink: 0;
 }
 .global-player-iframe-wrap iframe {
   width: 100%;
