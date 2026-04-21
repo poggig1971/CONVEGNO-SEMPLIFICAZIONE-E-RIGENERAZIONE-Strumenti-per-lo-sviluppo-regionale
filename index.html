@@ -2253,6 +2253,7 @@ html, body {
       <input id="overlaySearchInput" placeholder="Cerca tra relatori, normativa, trascrizione…" />
       <span class="ovr-close-kbd">ESC per chiudere</span>
     </div>
+    <div id="ovrTemaChip" style="display:none; align-items:center; gap:8px; padding:7px 12px; background:#eff6ff; border:1px solid var(--ance-blue); border-radius:4px; font-size:13px; color:var(--text); margin-bottom:10px; width:fit-content"></div>
     <div class="ovr-filters" id="ovrFilters">
       <button class="ovr-filter active" data-tag="all">Tutti</button>
       <button class="ovr-filter" data-tag="saluti">Saluti</button>
@@ -2878,16 +2879,18 @@ function buildTemi() {
       const code = el.dataset.temacode;
       const tema = TEMI.find(t => t.code === code);
       if (!tema || tema.computedCount === 0) return;
+      // Approccio unificato: uso sempre matchedIds (affidabili, già calcolati
+      // dalla stessa logica del count). Passo anche il filterTag se esiste,
+      // così il pill visibile nell'overlay è coerente.
+      const preset = {
+        matchedIds: tema.matchedIds,
+        matchedLabel: tema.label
+      };
       if (tema.filter_tag) {
-        // Esiste un pill filtro corrispondente nell'overlay?
         const pillExists = !!document.querySelector(`.ovr-filter[data-tag="${tema.filter_tag}"]`);
-        if (pillExists) {
-          openOverlay({ filterTag: tema.filter_tag });
-          return;
-        }
+        if (pillExists) preset.filterTag = tema.filter_tag;
       }
-      // Fallback: cerca per label nel testo
-      openOverlay({ query: tema.label });
+      openOverlay(preset);
     });
   });
 }
@@ -3243,6 +3246,8 @@ function openInspectorPanel(panel) {
 
 /* ═══════════════════════ SEARCH OVERLAY ═══════════════════════ */
 let ovrFilter = "all";
+let ovrMatchedIds = null;     // array di id intervento per filtro diretto (da click tema)
+let ovrMatchedLabel = null;   // etichetta del tema cliccato (mostrata come chip)
 function bindSearch() {
   const input = document.getElementById("overlaySearchInput");
   input.addEventListener("input", renderSearchResults);
@@ -3256,10 +3261,12 @@ function bindSearch() {
   });
 }
 function openOverlay(preset = {}) {
-  // preset: { query?: string, filterTag?: string }
+  // preset: { query?, filterTag?, matchedIds?, matchedLabel? }
   document.getElementById("overlay").classList.add("active");
   const input = document.getElementById("overlaySearchInput");
-  // Imposto eventuale filtro tag
+  // Reset filtri precedenti
+  ovrMatchedIds = preset.matchedIds || null;
+  ovrMatchedLabel = preset.matchedLabel || null;
   if (preset.filterTag) {
     ovrFilter = preset.filterTag;
     document.querySelectorAll(".ovr-filter").forEach(b => {
@@ -3271,8 +3278,9 @@ function openOverlay(preset = {}) {
       b.classList.toggle("active", b.dataset.tag === "all");
     });
   }
-  // Imposto eventuale query
   input.value = preset.query || "";
+  // Aggiorno il chip "tema attivo"
+  updateTemaChip();
   setTimeout(() => {
     input.focus();
     renderSearchResults();
@@ -3281,6 +3289,29 @@ function openOverlay(preset = {}) {
 function closeOverlay() {
   document.getElementById("overlay").classList.remove("active");
   document.getElementById("overlaySearchInput").value = "";
+  ovrMatchedIds = null;
+  ovrMatchedLabel = null;
+  updateTemaChip();
+}
+function updateTemaChip() {
+  const chip = document.getElementById("ovrTemaChip");
+  if (!chip) return;
+  if (ovrMatchedLabel) {
+    chip.innerHTML = `
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-faint); letter-spacing:0.06em; text-transform:uppercase">Tema</span>
+      <span style="font-weight:600; color:var(--ance-blue)">${ovrMatchedLabel}</span>
+      <button onclick="clearTemaChip()" style="background:none; border:0; cursor:pointer; color:var(--text-faint); font-size:16px; line-height:1; padding:0 4px" title="Rimuovi filtro tema">×</button>
+    `;
+    chip.style.display = "inline-flex";
+  } else {
+    chip.style.display = "none";
+  }
+}
+function clearTemaChip() {
+  ovrMatchedIds = null;
+  ovrMatchedLabel = null;
+  updateTemaChip();
+  renderSearchResults();
 }
 function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 function snippetAround(text, q, radius = 90) {
@@ -3317,9 +3348,15 @@ function renderSearchResults() {
   }
 
   const filtered = INTERVENTI.map(i => {
+    // Filtro 1: IDs specifici (da click tema)
+    if (ovrMatchedIds && !ovrMatchedIds.includes(i.id)) return null;
+    // Filtro 2: tag pill
     const tagOk = ovrFilter === "all" || i.tags.includes(ovrFilter);
     if (!tagOk) return null;
-    if (!q) return { i, hits: [] };
+    // Se c'è il filtro tema attivo ma nessuna query, mostro tutti gli interventi del tema
+    if (ovrMatchedIds && !q) return { i, hits: [] };
+    // Senza query e senza matchedIds: non mostro nulla (comportamento iniziale)
+    if (!q) return null;
     const hits = searchIn(i, q);
     if (hits.length === 0) return null;
     return { i, hits };
@@ -3328,7 +3365,13 @@ function renderSearchResults() {
   document.getElementById("ovrCount").textContent = filtered.length + " risultati";
 
   if (filtered.length === 0) {
-    box.innerHTML = `<div class="ovr-empty">Nessun risultato per "<strong>${q}</strong>"</div>`;
+    if (ovrMatchedIds && !q) {
+      box.innerHTML = `<div class="ovr-empty">Nessun intervento associato a questo tema</div>`;
+    } else if (q) {
+      box.innerHTML = `<div class="ovr-empty">Nessun risultato per "<strong>${q}</strong>"${ovrMatchedLabel ? ` dentro il tema <em>${ovrMatchedLabel}</em>` : ""}</div>`;
+    } else {
+      box.innerHTML = `<div class="ovr-empty" style="color:var(--text-faint)">Inizia a digitare o clicca un pill per filtrare</div>`;
+    }
     return;
   }
 
@@ -3507,6 +3550,7 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
 
 
 
