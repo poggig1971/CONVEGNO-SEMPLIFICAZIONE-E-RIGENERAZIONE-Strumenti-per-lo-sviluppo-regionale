@@ -533,18 +533,17 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
+  overscroll-behavior: contain;
 }
+.ws-content::-webkit-scrollbar { width: 6px; }
+.ws-content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 
 /* View default (panoramica) */
 .view {
   display: none;
-  height: 100%;
-  overflow: auto;
   padding: 20px;
 }
 .view.active { display: block; }
-.view::-webkit-scrollbar { width: 6px; }
-.view::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 
 /* ═══════════════════════════════════════════════════════════
    VIEW: PANORAMICA
