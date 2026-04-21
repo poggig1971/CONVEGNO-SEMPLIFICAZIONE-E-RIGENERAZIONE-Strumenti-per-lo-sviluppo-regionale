@@ -531,6 +531,13 @@ html, body {
   position: relative;
 }
 
+/* Rinforzo scroll interno delle view (fix player globale) */
+.ws-content > [data-view] {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* View default (panoramica) */
 .view {
   display: none;
