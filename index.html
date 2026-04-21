@@ -1893,170 +1893,6 @@ html, body {
   color: var(--text-dim);
   margin-bottom: 4px;
 }
-/* ═══════════════════════════════════════════════════════════
-   PRESS RELEASE · view Comunicato stampa
-   ═══════════════════════════════════════════════════════════ */
-.press-release {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 28px 36px 40px;
-}
-.pr-head { margin-bottom: 28px; }
-.pr-badge {
-  display: inline-block;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #fff;
-  background: #ea580c;
-  padding: 4px 10px;
-  border-radius: 4px;
-  margin-bottom: 14px;
-  font-weight: 600;
-}
-.pr-title {
-  font-size: 28px;
-  line-height: 1.2;
-  font-weight: 700;
-  color: #1e3a8a;
-  letter-spacing: -0.015em;
-  margin-bottom: 14px;
-}
-.pr-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--text-dim);
-  margin-bottom: 12px;
-  font-family: "IBM Plex Mono", monospace;
-}
-.pr-meta-item { white-space: nowrap; }
-.pr-promoters {
-  font-size: 13px;
-  color: var(--text-dim);
-  padding-top: 10px;
-  border-top: 1px dashed var(--border);
-  line-height: 1.6;
-}
-.pr-promoters strong { color: var(--text); font-weight: 600; }
-.pr-lead {
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--text);
-  padding: 18px 22px;
-  background: #fef3c7;
-  border-left: 4px solid #ea580c;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  font-weight: 500;
-}
-.pr-info-box {
-  padding: 12px 16px;
-  background: rgba(30, 58, 138, 0.06);
-  border: 1px solid rgba(30, 58, 138, 0.15);
-  border-radius: 6px;
-  font-size: 13.5px;
-  color: #1e3a8a;
-  margin-bottom: 28px;
-  text-align: center;
-}
-.pr-section { margin-bottom: 28px; }
-.pr-section-title {
-  font-size: 13px;
-  font-family: "IBM Plex Mono", monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  font-weight: 600;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-.pr-program-row {
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--text-dim);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.pr-program-row:last-child { border-bottom: 0; }
-.pr-program-label {
-  font-weight: 600;
-  color: #1e3a8a;
-  font-size: 12.5px;
-}
-.pr-quote {
-  margin-bottom: 18px;
-  padding: 16px 20px;
-  background: var(--bg-soft);
-  border-left: 4px solid #1e3a8a;
-  border-radius: 4px;
-}
-.pr-quote-head {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.pr-quote-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.pr-quote-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text);
-  line-height: 1.2;
-}
-.pr-quote-role {
-  font-size: 12px;
-  color: #ea580c;
-  font-weight: 500;
-  margin-top: 2px;
-}
-.pr-quote-body {
-  font-size: 13.5px;
-  line-height: 1.65;
-  color: var(--text);
-  font-style: italic;
-  border-left: 0;
-  padding: 0;
-  margin: 0;
-}
-.pr-download { margin-top: 32px; }
-.pr-dl-btn {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  padding: 16px 22px;
-  background: #1e3a8a;
-  color: #fff;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: background 0.15s, transform 0.15s;
-}
-.pr-dl-btn:hover {
-  background: #1e40af;
-  transform: translateY(-1px);
-}
-.pr-dl-btn > span:first-child { font-size: 22px; }
-.pr-dl-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-.pr-dl-sub { font-size: 11.5px; opacity: 0.85; }
-.pr-dl-arrow { font-size: 20px; margin-left: auto; }
-   
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
@@ -2114,10 +1950,6 @@ html, body {
           <span class="label-text">Temi e normativa</span>
           <span class="nav-count">12</span>
         </button>
-        <button class="nav-btn" data-view="comunicato">
-          <span class="nav-icon">📰</span>
-          <span class="nav-label">Comunicato stampa</span>
-        </button> 
         <button class="nav-item" data-view="podcast">
           <span class="nav-icon">🎧</span>
           <span class="label-text">Podcast AI</span>
@@ -2193,100 +2025,6 @@ html, body {
           <iframe id="gpIframe" src="https://www.youtube.com/embed/3YDQc0bP_74?rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
         </div>
       </div>
-
-      <!-- VIEW: COMUNICATO STAMPA -->
-        <div class="view" data-view="comunicato">
-          <div class="press-release">
-
-            <!-- Header con badge e metadata -->
-            <div class="pr-head">
-              <div class="pr-badge">📰 Comunicato stampa</div>
-              <h1 class="pr-title">Semplificazione e rigenerazione.<br>Strumenti per lo sviluppo regionale</h1>
-              <div class="pr-meta">
-                <span class="pr-meta-item">📅 Martedì 21 aprile 2026, ore 9.30</span>
-                <span class="pr-meta-item">📍 Centro Congressi Regione Piemonte · Piazza Piemonte 1, Torino</span>
-              </div>
-              <div class="pr-promoters">
-                <strong>Organizzato da</strong> ANCE Piemonte Valle d'Aosta <strong>in collaborazione con</strong> Assessorato all'Urbanistica Regione Piemonte · Confindustria Piemonte
-              </div>
-            </div>
-
-            <!-- Intro -->
-            <div class="pr-lead">
-              La semplificazione normativa e la rigenerazione urbana per rilanciare investimenti in Piemonte: sono questi i temi al centro del convegno in programma martedì 21 aprile 2026 alle ore 9.30 presso la Sala Auditorium del Centro Congressi della Regione Piemonte.
-            </div>
-
-            <!-- Info formative -->
-            <div class="pr-info-box">
-              <strong>Evento formativo gratuito</strong> · Riconoscimento di 3 crediti formativi per ingegneri, architetti e geometri
-            </div>
-
-            <!-- Programma sintetico -->
-            <div class="pr-section">
-              <h2 class="pr-section-title">Programma</h2>
-              <div class="pr-program">
-                <div class="pr-program-row"><span class="pr-program-label">Saluti istituzionali</span>Alberto Cirio (Regione Piemonte), Marco Gallo (Assessore all'Urbanistica), Paola Malabaila (ANCE Piemonte VdA), Andrea Amalberto (Confindustria Piemonte), Davide Gilardino (ANCI Piemonte)</div>
-                <div class="pr-program-row"><span class="pr-program-label">Introduzione</span>Angelo Robotto · Direttore Ambiente, Energia e Territorio · Regione Piemonte</div>
-                <div class="pr-program-row"><span class="pr-program-label">L.R. 5/2026 "Cresci Piemonte"</span>Giovanni Paludi · Vice Direttore Ambiente, Energia e Territorio</div>
-                <div class="pr-program-row"><span class="pr-program-label">L.R. 16/2018 · Potenzialità</span>Caterina Silva, Alessandro Mola (Resp. Settori Urbanistica) · Antonio Trifirò (Esperto Giuridico)</div>
-                <div class="pr-program-row"><span class="pr-program-label">Caso concreto · Beinette</span>Lorenzo Busciglio (Sindaco) · Daniele Musso (Ufficio Tecnico)</div>
-                <div class="pr-program-row"><span class="pr-program-label">L.R. 56/1977 · Revisione</span>Aggiornamento sul percorso di revisione della legge urbanistica regionale</div>
-                <div class="pr-program-row"><span class="pr-program-label">Tavola rotonda</span>Modera Filomena Greco (Il Sole 24 Ore) · con Gallo, Malabaila, Pugliese (FederArch), Porro (FIOPA), Cavassa (ANCI Piemonte)</div>
-              </div>
-            </div>
-
-            <!-- Citazioni -->
-            <div class="pr-section">
-              <h2 class="pr-section-title">Dichiarazioni ufficiali</h2>
-
-              <div class="pr-quote">
-                <div class="pr-quote-head">
-                  <div class="pr-quote-avatar" style="background:#1e3a8a">MG</div>
-                  <div class="pr-quote-who">
-                    <div class="pr-quote-name">Marco Gallo</div>
-                    <div class="pr-quote-role">Assessore all'Urbanistica · Regione Piemonte</div>
-                  </div>
-                </div>
-                <blockquote class="pr-quote-body">Il convegno organizzato con ANCE sarà l'occasione per approfondire il "Cresci Piemonte", con cui abbiamo già introdotto strumenti urbanistici fondamentali e innovativi per accelerare le varianti relative ai progetti strategici e i nuovi piani regolatori dei capoluoghi. Ma l'appuntamento è soprattutto funzionale a tracciare la rotta del futuro: il rilancio della Legge 16 sulla rigenerazione urbana, che vogliamo rendere sempre più efficace per il recupero delle aree dismesse, e l'avvio della revisione della legge urbanistica 56/1977. Quest'ultima rappresenta una sfida fondamentale per lo sviluppo dei nostri territori: il Piemonte necessita di una norma contemporanea che sappia trasformare la semplificazione burocratica in un volano per gli investimenti e la sostenibilità. Insieme dunque ad ANCE, ANCI, Confindustria e ai professionisti del settore, l'obiettivo è definire un quadro di regole chiare e tempi certi che permettano alle nostre imprese di progettare con fiducia il futuro degli spazi urbani.</blockquote>
-              </div>
-
-              <div class="pr-quote">
-                <div class="pr-quote-head">
-                  <div class="pr-quote-avatar" style="background:#059669">DG</div>
-                  <div class="pr-quote-who">
-                    <div class="pr-quote-name">Davide Gilardino</div>
-                    <div class="pr-quote-role">Presidente · ANCI Piemonte</div>
-                  </div>
-                </div>
-                <blockquote class="pr-quote-body">La legge "Cresci Piemonte" rappresenta un cambio di passo decisivo. È un segnale di grande sintonia istituzionale, da noi fortemente voluto, che si concretizza nell'impegno a sostenere gli enti locali attraverso uno stanziamento economico importante nel triennio 2026-2028. Partecipiamo dunque con convinzione a momenti di confronto come questo, consapevoli che il dialogo tra istituzioni e categorie economiche sia l'unico vero motore per lo sviluppo del territorio.</blockquote>
-              </div>
-
-              <div class="pr-quote">
-                <div class="pr-quote-head">
-                  <div class="pr-quote-avatar" style="background:#ea580c">PM</div>
-                  <div class="pr-quote-who">
-                    <div class="pr-quote-name">Paola Malabaila</div>
-                    <div class="pr-quote-role">Presidente · ANCE Piemonte Valle d'Aosta</div>
-                  </div>
-                </div>
-                <blockquote class="pr-quote-body">La semplificazione normativa e la rigenerazione urbana sono condizioni necessarie per garantire competitività e sviluppo ai nostri territori. Le nostre imprese sono pronte a fare la loro parte ma serve un quadro normativo chiaro, stabile e realmente attuabile, capace di accelerare gli interventi e valorizzare il patrimonio esistente. Con il "Cresci Piemonte" si apre una fase importante: ora è necessario trasformare le opportunità in cantieri reali, investimenti e occupazione. La collaborazione tra istituzioni, tecnici e imprese è quindi determinante per rendere efficaci queste politiche, e questa giornata di lavori vuole essere un'occasione concreta per darne attuazione.</blockquote>
-              </div>
-            </div>
-
-            <!-- Download PDF -->
-            <div class="pr-download">
-              <a href="https://drive.google.com/file/d/1aTcJwhoMlUhzIsqpwWw5imimtnyQMWiF/view" target="_blank" rel="noopener" class="pr-dl-btn">
-                <span>📄</span>
-                <div>
-                  <div class="pr-dl-title">Scarica il comunicato stampa integrale (PDF)</div>
-                  <div class="pr-dl-sub">Versione ufficiale con loghi istituzionali · 2 pagine</div>
-                </div>
-                <span class="pr-dl-arrow">→</span>
-              </a>
-            </div>
-
-          </div>
-        </div>
 
       <!-- Content area -->
       <div class="ws-content">
@@ -2366,7 +2104,29 @@ html, body {
             <div class="themes-mini-grid" id="temiMini"></div>
           </div>
 
-          
+          <!-- Comunicato stampa -->
+          <div class="themes-mini" style="margin-top:16px">
+            <div class="themes-mini-head">
+              <span>📰 Dal comunicato stampa · 21 aprile 2026</span>
+              <span class="sub">dichiarazioni ufficiali</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px; margin-top:10px">
+              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--ance-orange); border-radius:4px">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-orange); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Marco Gallo</div>
+                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«Regole chiare e tempi certi che permettano alle nostre imprese di progettare con fiducia il futuro degli spazi urbani.»</div>
+              </div>
+              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--ance-blue); border-radius:4px">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-blue); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Paola Malabaila</div>
+                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«La semplificazione normativa e la rigenerazione urbana sono condizioni necessarie per garantire competitività e sviluppo.»</div>
+              </div>
+              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--text-dim); border-radius:4px">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Davide Gilardino · ANCI</div>
+                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«La legge Cresci Piemonte rappresenta un cambio di passo decisivo.»</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--text-faint); margin-top:6px; letter-spacing:0.03em">Dichiarazione pre-evento · sostituito dal Vicepres. Cavassa</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- VIEW: INTERVENTO · pannello info (il video è nel player globale sopra) -->
         <div class="view-intervento" data-view="intervento">
@@ -3436,7 +3196,6 @@ function switchView(view) {
     temi: ["🏷 Temi e normativa", "tassonomia"],
     podcast: ["🎧 Podcast AI", "sintesi NotebookLM"],
     documenti: ["📁 Documenti e slide", "archivio PDF"]
-    comunicato: { title: "Comunicato stampa", sub: "Dichiarazioni e dossier ufficiale" },
   };
   const [title, sub] = titles[view] || ["—", ""];
   document.getElementById("wsTitle").innerHTML = title;
@@ -3931,6 +3690,15 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
 
 
