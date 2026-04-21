@@ -255,57 +255,26 @@ html, body {
   color: #fff;
 }
 
-/* Progress footer nel menu */
-.sidebar-footer {
-  border-top: 1px solid var(--border);
-  padding: 14px 16px;
-}
-.progress-lbl {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10px;
-  color: var(--text-faint);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-.progress-txt {
-  font-size: 12.5px;
-  color: var(--text);
-  font-weight: 500;
-  margin-bottom: 6px;
-}
-.progress-txt strong { color: var(--ance-blue); }
-.progress-bar {
-  height: 5px;
-  background: var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--ance-blue), var(--ance-orange));
-  transition: width 0.4s ease;
-}
-
 /* ═══════════════════════════════════════════════════════════
    WORKSPACE · area centrale
    ═══════════════════════════════════════════════════════════ */
 .workspace {
   display: grid;
-  grid-template-rows: 48px var(--timeline-h) auto 1fr;
+  grid-template-rows: 48px var(--timeline-h) 1fr;
   overflow: hidden;
   background: var(--bg);
 }
 /* ═══════════════════════════════════════════════════════════
-   GLOBAL YOUTUBE PLAYER · persistente in tutte le view
+   GLOBAL YOUTUBE PLAYER · sticky in cima a .ws-content
    ═══════════════════════════════════════════════════════════ */
- .global-player {
+.global-player {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background: #000;
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  position: relative;
   flex-shrink: 0;
 }
 .global-player-head {
@@ -832,9 +801,7 @@ html, body {
    ═══════════════════════════════════════════════════════════ */
 .view-intervento {
   display: none;
-  height: 100%;
   padding: 16px;
-  overflow: hidden;
   flex-direction: column;
   gap: 16px;
 }
@@ -1834,8 +1801,7 @@ html, body {
   :root { --sidebar-w: 60px; }
   .nav-item .label-text,
   .nav-item .nav-count,
-  .nav-section,
-  .sidebar-footer { display: none; }
+  .nav-section { display: none; }
   .nav-item { justify-content: center; }
   .inspector-body { display: none; }
   .inspector.closed .inspector-tabs { display: flex; }
@@ -1974,19 +1940,6 @@ html, body {
           <span class="label-text">Scorciatoie</span>
         </button>
       </div>
-
-      <!-- Progress footer -->
-      <div class="sidebar-footer">
-        <div class="progress-lbl">La tua attività</div>
-        <div class="progress-txt">Ascoltati <strong id="progressCount">0</strong> di 13 interventi</div>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-        <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--text-faint); letter-spacing:0.04em; line-height:1.5">
-          📁 Slide su Google Drive<br>
-          🎥 Video YouTube · in attesa<br>
-          📜 Trascrizioni · in attesa<br>
-          🎧 Podcast AI · da generare
-        </div>
-      </div>
     </nav>
 
     <!-- WORKSPACE -->
@@ -2016,21 +1969,22 @@ html, body {
         <div class="tl-track" id="tlTrack"></div>
       </div>
 
-      <!-- Global YouTube player · persistente in tutte le view -->
-      <div class="global-player">
-        <div class="global-player-head">
-          <span id="gpStatus">— · seleziona un intervento</span>
-          <span class="cue-txt" id="gpCue">Seleziona un intervento dalla timeline o dalla lista</span>
-          <span class="ts-pill" id="gpTs">00:00:00</span>
-          <button class="mark-btn" id="gpMark" onclick="markAsDone()" title="Segna questo intervento come ascoltato">✓ Ascoltato</button>
-        </div>
-        <div class="global-player-iframe-wrap">
-          <iframe id="gpIframe" src="https://www.youtube.com/embed/3YDQc0bP_74?rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-        </div>
-      </div>
-
-      <!-- Content area -->
+      <!-- Content area · include il player sticky in cima -->
       <div class="ws-content">
+
+        <!-- Global YouTube player · sticky in cima a tutte le view -->
+        <div class="global-player">
+          <div class="global-player-head">
+            <span id="gpStatus">— · seleziona un intervento</span>
+            <span class="cue-txt" id="gpCue">Seleziona un intervento dalla timeline o dalla lista</span>
+            <span class="ts-pill" id="gpTs">00:00:00</span>
+            <button class="mark-btn" id="gpMark" onclick="markAsDone()" title="Segna questo intervento come ascoltato">✓ Ascoltato</button>
+          </div>
+          <div class="global-player-iframe-wrap">
+            <iframe id="gpIframe" src="https://www.youtube.com/embed/3YDQc0bP_74?rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+
 
         <!-- VIEW: PANORAMICA -->
         <div class="view active" data-view="panorama">
@@ -3270,6 +3224,9 @@ function switchView(view) {
   const [title, sub] = titles[view] || ["—", ""];
   document.getElementById("wsTitle").innerHTML = title;
   document.getElementById("wsSub").textContent = sub;
+  // Reset scroll al cambio view
+  const wsContent = document.querySelector(".ws-content");
+  if (wsContent) wsContent.scrollTop = 0;
 }
 
 function goToIntervento(i) {
@@ -3402,9 +3359,6 @@ function markAsDone() {
 }
 
 function updateProgress() {
-  const n = doneInterventi.size;
-  document.getElementById("progressCount").textContent = n;
-  document.getElementById("progressFill").style.width = (n / INTERVENTI.length * 100) + "%";
   // aggiorna timeline
   INTERVENTI.forEach(i => {
     if (doneInterventi.has(i.id)) {
