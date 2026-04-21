@@ -2072,7 +2072,11 @@ html, body {
         <div class="view" data-view="temi">
           <div class="view-pad">
             <h2 class="view-title"><span class="icon">🏷</span>Temi e normativa</h2>
-            <p class="view-sub">Tassonomia editoriale · click per filtrare gli interventi correlati</p>
+            <p class="view-sub">Tassonomia editoriale · i conteggi sono calcolati automaticamente dal contenuto reale degli interventi (tag o match testuale).</p>
+            <div style="display:flex; gap:14px; flex-wrap:wrap; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); margin:8px 0 20px; padding:10px 14px; background:var(--bg-soft); border-left:3px solid var(--ance-blue); border-radius:4px">
+              <span><strong style="color:var(--ance-blue)">🏷 tag</strong> = conteggio preciso per tag del Sheet</span>
+              <span><strong style="color:var(--ance-orange)">🔍 match testuale</strong> = conteggio per occorrenza della label nei testi</span>
+            </div>
             <div class="temi-grid" id="temiGridFull"></div>
           </div>
         </div>
@@ -2655,6 +2659,57 @@ async function loadFromSheet() {
   }
 }
 
+/* ═══════════════════════ TEMI · CONTEGGIO AUTOMATICO ═══════════════════════ */
+// Normalizzazione testi per matching robusto (ignora punteggiatura, case)
+function normalizeText(s) {
+  return (s || "").toLowerCase()
+    .replace(/[.,;:!?\-\/\\'"]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Conta quanti interventi sono correlati a un tema.
+// Se il tema ha un filter_tag: conta interventi che lo contengono in tags.
+// Se il tema NON ha filter_tag: conta interventi in cui la label compare nei contenuti.
+function countInterventiByTema(tema) {
+  if (!INTERVENTI || INTERVENTI.length === 0) return 0;
+  if (tema.filter_tag) {
+    return INTERVENTI.filter(i => i.tags && i.tags.includes(tema.filter_tag)).length;
+  }
+  // Fallback: cerca la label nei testi degli interventi
+  const needle = normalizeText(tema.label);
+  if (!needle) return 0;
+  // Splitto in parole significative (>= 4 caratteri) per matching più flessibile
+  const keywords = needle.split(" ").filter(w => w.length >= 4);
+  if (keywords.length === 0) return 0;
+  return INTERVENTI.filter(i => {
+    const hay = normalizeText([
+      i.titolo, i.bio, i.abstract, i.slideText,
+      (i.tagLabels || []).join(" ")
+    ].join(" "));
+    // Match se TUTTE le keyword significative sono presenti nel testo
+    return keywords.every(kw => hay.includes(kw));
+  }).length;
+}
+
+// Restituisce gli interventi correlati a un tema (per click)
+function interventiForTema(tema) {
+  if (!INTERVENTI || INTERVENTI.length === 0) return [];
+  if (tema.filter_tag) {
+    return INTERVENTI.filter(i => i.tags && i.tags.includes(tema.filter_tag));
+  }
+  const needle = normalizeText(tema.label);
+  if (!needle) return [];
+  const keywords = needle.split(" ").filter(w => w.length >= 4);
+  return INTERVENTI.filter(i => {
+    const hay = normalizeText([
+      i.titolo, i.bio, i.abstract, i.slideText,
+      (i.tagLabels || []).join(" ")
+    ].join(" "));
+    return keywords.every(kw => hay.includes(kw));
+  });
+}
+
 function renderAll() {
   buildTimeline();
   buildMonitors();
@@ -2781,20 +2836,60 @@ function jumpMonitor(i) {
 
 /* ═══════════════════════ TEMI ═══════════════════════ */
 function buildTemi() {
-  document.getElementById("temiMini").innerHTML = TEMI.slice(0, 8).map(t => `
-    <div class="theme-mini">
+  // Ricalcolo i conteggi automaticamente (ignoro i valori nel Sheet)
+  TEMI.forEach(t => {
+    t.computedCount = countInterventiByTema(t);
+    t.matchedIds = interventiForTema(t).map(i => i.id);
+  });
+
+  const miniHtml = TEMI.slice(0, 8).map(t => {
+    const empty = t.computedCount === 0;
+    return `
+    <div class="theme-mini" data-temacode="${t.code}" ${empty ? 'style="opacity:0.5"' : ""}>
       <div class="theme-mini-code">${t.code}</div>
       <div class="theme-mini-label">${t.label}</div>
-      <div class="theme-mini-count"><strong>${t.count}</strong> riferimenti</div>
-    </div>
-  `).join("");
-  document.getElementById("temiGridFull").innerHTML = TEMI.map(t => `
-    <div class="tema-card">
+      <div class="theme-mini-count"><strong>${t.computedCount}</strong> ${t.computedCount === 1 ? "intervento" : "interventi"}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("temiMini").innerHTML = miniHtml;
+
+  const fullHtml = TEMI.map(t => {
+    const empty = t.computedCount === 0;
+    const modeTag = t.filter_tag ? "🏷 tag" : "🔍 match testuale";
+    const labelClick = empty ? "" : "click per vedere gli interventi →";
+    const cursor = empty ? "default" : "pointer";
+    const opacity = empty ? "0.5" : "1";
+    return `
+    <div class="tema-card" data-temacode="${t.code}" style="cursor:${cursor}; opacity:${opacity}">
       <div class="tema-code">${t.code}</div>
       <div class="tema-label">${t.label}</div>
-      <div class="tema-count"><strong>${t.count}</strong> riferimenti nel convegno</div>
-    </div>
-  `).join("");
+      <div class="tema-count"><strong>${t.computedCount}</strong> ${t.computedCount === 1 ? "intervento correlato" : "interventi correlati"}</div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--text-faint); margin-top:10px; display:flex; justify-content:space-between; align-items:center; gap:8px; letter-spacing:0.04em">
+        <span>${modeTag}</span>
+        <span style="color:var(--ance-orange)">${labelClick}</span>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("temiGridFull").innerHTML = fullHtml;
+
+  // Aggancio click handler: apre overlay filtrato
+  document.querySelectorAll('.tema-card, .theme-mini').forEach(el => {
+    el.addEventListener("click", () => {
+      const code = el.dataset.temacode;
+      const tema = TEMI.find(t => t.code === code);
+      if (!tema || tema.computedCount === 0) return;
+      if (tema.filter_tag) {
+        // Esiste un pill filtro corrispondente nell'overlay?
+        const pillExists = !!document.querySelector(`.ovr-filter[data-tag="${tema.filter_tag}"]`);
+        if (pillExists) {
+          openOverlay({ filterTag: tema.filter_tag });
+          return;
+        }
+      }
+      // Fallback: cerca per label nel testo
+      openOverlay({ query: tema.label });
+    });
+  });
 }
 
 /* ═══════════════════════ LISTA SALUTI ═══════════════════════ */
@@ -3160,10 +3255,26 @@ function bindSearch() {
     });
   });
 }
-function openOverlay() {
+function openOverlay(preset = {}) {
+  // preset: { query?: string, filterTag?: string }
   document.getElementById("overlay").classList.add("active");
+  const input = document.getElementById("overlaySearchInput");
+  // Imposto eventuale filtro tag
+  if (preset.filterTag) {
+    ovrFilter = preset.filterTag;
+    document.querySelectorAll(".ovr-filter").forEach(b => {
+      b.classList.toggle("active", b.dataset.tag === preset.filterTag);
+    });
+  } else {
+    ovrFilter = "all";
+    document.querySelectorAll(".ovr-filter").forEach(b => {
+      b.classList.toggle("active", b.dataset.tag === "all");
+    });
+  }
+  // Imposto eventuale query
+  input.value = preset.query || "";
   setTimeout(() => {
-    document.getElementById("overlaySearchInput").focus();
+    input.focus();
     renderSearchResults();
   }, 50);
 }
@@ -3396,6 +3507,7 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
 
 
 
