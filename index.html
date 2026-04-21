@@ -54,18 +54,16 @@ html, body {
   font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
 }
 /* ═══════════════════════════════════════════════════════════
-   APP SHELL · griglia principale 100dvh
+   APP SHELL · griglia principale · min-height 100dvh per consentire
+   al body di scrollare quando il contenuto è più alto del viewport
    ═══════════════════════════════════════════════════════════ */
 .app {
   display: grid;
   grid-template-rows: var(--header-h) 1fr;
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
+  min-height: 100dvh;
   transition: grid-template-rows 0.3s ease;
 }
 .app.header-collapsed {
@@ -106,7 +104,9 @@ html, body {
   justify-content: space-between;
   box-shadow: var(--shadow);
   overflow: hidden;
-  z-index: 50;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -176,12 +176,11 @@ html, body {
 .main {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr auto;
-  overflow: hidden;
-  min-height: 0;
+  align-items: start;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SIDEBAR · menu navigazione
+   SIDEBAR · menu navigazione · sticky sotto l'header
    ═══════════════════════════════════════════════════════════ */
 .sidebar {
   background: var(--panel);
@@ -189,6 +188,13 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100dvh - var(--header-h));
+}
+.app.header-collapsed .sidebar {
+  top: var(--header-h-collapsed);
+  height: calc(100dvh - var(--header-h-collapsed));
 }
 .sidebar-nav {
   flex: 1;
@@ -259,23 +265,26 @@ html, body {
    WORKSPACE · area centrale
    ═══════════════════════════════════════════════════════════ */
 .workspace {
-  display: grid;
-  grid-template-rows: 48px var(--timeline-h) 1fr;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
+  min-width: 0;
 }
 /* ═══════════════════════════════════════════════════════════
-   GLOBAL YOUTUBE PLAYER · sticky in cima a .ws-content
+   GLOBAL YOUTUBE PLAYER · sticky sotto timeline
    ═══════════════════════════════════════════════════════════ */
 .global-player {
   position: sticky;
-  top: 0;
-  z-index: 10;
+  top: calc(var(--header-h) + 48px + var(--timeline-h));
+  z-index: 8;
   background: #000;
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+}
+.app.header-collapsed .global-player {
+  top: calc(var(--header-h-collapsed) + 48px + var(--timeline-h));
 }
 .global-player-head {
   padding: 8px 20px;
@@ -337,9 +346,9 @@ html, body {
 .global-player-iframe-wrap {
   position: relative;
   width: 100%;
-  height: 20vh;
-  min-height: 140px;
-  max-height: 240px;
+  height: 28vh;
+  min-height: 200px;
+  max-height: 340px;
   background: #000;
   flex-shrink: 0;
 }
@@ -350,7 +359,7 @@ html, body {
   display: block;
 }
    
-/* Workspace topbar — ricerca trigger + title */
+/* Workspace topbar — ricerca trigger + title · sticky sotto l'header */
 .ws-topbar {
   display: flex;
   align-items: center;
@@ -359,6 +368,14 @@ html, body {
   background: var(--panel);
   border-bottom: 1px solid var(--border);
   gap: 14px;
+  height: 48px;
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--header-h);
+  z-index: 9;
+}
+.app.header-collapsed .ws-topbar {
+  top: var(--header-h-collapsed);
 }
 .ws-title {
   font-size: 15px;
@@ -424,7 +441,7 @@ html, body {
 .icon-btn:hover { background: var(--bg-soft); color: var(--ance-blue); border-color: var(--ance-blue); }
 .icon-btn svg { width: 14px; height: 14px; }
 
-/* Timeline orizzontale */
+/* Timeline orizzontale · sticky sotto ws-topbar */
 .timeline {
   background: var(--panel);
   border-bottom: 1px solid var(--border);
@@ -433,6 +450,14 @@ html, body {
   align-items: center;
   gap: 12px;
   overflow-x: auto;
+  height: var(--timeline-h);
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--header-h) + 48px);
+  z-index: 9;
+}
+.app.header-collapsed .timeline {
+  top: calc(var(--header-h-collapsed) + 48px);
 }
 .timeline::-webkit-scrollbar { height: 4px; }
 .timeline::-webkit-scrollbar-thumb { background: var(--border-strong); }
@@ -496,16 +521,10 @@ html, body {
 .tl-node .tl-n { opacity: 0.7; font-size: 9px; }
 .tl-node.active .tl-n { opacity: 1; }
 
-/* Content area */
+/* Content area · altezza naturale, scroll è quello del body */
 .ws-content {
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
   position: relative;
-  overscroll-behavior: contain;
 }
-.ws-content::-webkit-scrollbar { width: 6px; }
-.ws-content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 
 /* View default (panoramica) */
 .view {
@@ -1156,10 +1175,16 @@ html, body {
 .inspector {
   display: flex;
   flex-direction: row-reverse;
-  height: 100%;
   background: var(--panel);
   border-left: 1px solid var(--border);
   transition: width 0.25s ease;
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100dvh - var(--header-h));
+}
+.app.header-collapsed .inspector {
+  top: var(--header-h-collapsed);
+  height: calc(100dvh - var(--header-h-collapsed));
 }
 
 .inspector-tabs {
@@ -3224,9 +3249,8 @@ function switchView(view) {
   const [title, sub] = titles[view] || ["—", ""];
   document.getElementById("wsTitle").innerHTML = title;
   document.getElementById("wsSub").textContent = sub;
-  // Reset scroll al cambio view
-  const wsContent = document.querySelector(".ws-content");
-  if (wsContent) wsContent.scrollTop = 0;
+  // Reset scroll al cambio view · lo scroll è del body
+  window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function goToIntervento(i) {
