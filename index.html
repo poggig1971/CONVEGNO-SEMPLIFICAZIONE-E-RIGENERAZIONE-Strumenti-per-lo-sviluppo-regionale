@@ -2035,19 +2035,9 @@ html, body {
         <!-- VIEW: SALUTI -->
         <div class="view" data-view="saluti">
           <div class="view-pad">
-            <h2 class="view-title"><span class="icon">🎙</span>Saluti istituzionali</h2>
-            <p class="view-sub">Le aperture dei cinque Presidenti e Assessori · scorrimento automatico ogni 6 secondi</p>
-          </div>
-          <div style="padding: 0 24px 24px">
-            <div class="monitor-card" style="height: calc(100% - 120px); min-height: 380px">
-              <div class="monitor-head">
-                <span>🎥 Monitor saluti · riproduzione automatica</span>
-                <span class="idx" id="monitorIdx2">01 / 05</span>
-              </div>
-              <div class="monitor-stage" id="monitorStage2" style="padding: 44px 48px"></div>
-              <div class="monitor-progress"><div class="monitor-progress-fill" id="monitorProgress2"></div></div>
-              <div class="monitor-nav" id="monitorNav2"></div>
-            </div>
+            <h2 class="view-title"><span class="icon">🎙</span>Saluti istituzionali · 5 interventi</h2>
+            <p class="view-sub">Apertura dei lavori. Clicca una scheda per il video, la trascrizione e la slide di riferimento.</p>
+            <div class="lista-grid" id="salutiGrid"></div>
           </div>
         </div>
 
@@ -2526,6 +2516,7 @@ document.addEventListener("DOMContentLoaded", () => {
   buildTimeline();
   buildMonitors();
   buildTemi();
+  buildSaluti();
   buildLista();
   buildPodcastList();
   buildDocs();
@@ -2569,7 +2560,6 @@ function buildTimeline() {
 /* ═══════════════════════ MONITOR ═══════════════════════ */
 function buildMonitors() {
   buildMonitor("monitorStage", "monitorNav");
-  buildMonitor("monitorStage2", "monitorNav2");
 }
 function buildMonitor(stageId, navId) {
   const stage = document.getElementById(stageId);
@@ -2614,9 +2604,7 @@ function startMonitorCarousel() {
     const elapsed = Date.now() - monStart;
     const pct = Math.min(100, (elapsed / MON_DUR) * 100);
     const p1 = document.getElementById("monitorProgress");
-    const p2 = document.getElementById("monitorProgress2");
     if (p1) p1.style.width = pct + "%";
-    if (p2) p2.style.width = pct + "%";
     if (elapsed >= MON_DUR) {
       jumpMonitor((currentMonSlide + 1) % SALUTI.length);
     }
@@ -2635,9 +2623,7 @@ function jumpMonitor(i) {
   monStart = Date.now();
   const lbl = String(i + 1).padStart(2, "0") + " / " + String(SALUTI.length).padStart(2, "0");
   const a = document.getElementById("monitorIdx");
-  const b = document.getElementById("monitorIdx2");
   if (a) a.textContent = lbl;
-  if (b) b.textContent = lbl;
 }
 
 /* ═══════════════════════ TEMI ═══════════════════════ */
@@ -2656,6 +2642,35 @@ function buildTemi() {
       <div class="tema-count"><strong>${t.count}</strong> riferimenti nel convegno</div>
     </div>
   `).join("");
+}
+
+/* ═══════════════════════ LISTA SALUTI ═══════════════════════ */
+function buildSaluti() {
+  const grid = document.getElementById("salutiGrid");
+  if (!grid) return;
+  const saluti = INTERVENTI.filter(i => i.tags.includes("saluti"));
+  grid.innerHTML = saluti.map(i => `
+    <div class="lista-card" data-id="${i.id}" style="display:flex; gap:14px; align-items:flex-start">
+      <div style="flex-shrink:0; width:52px; height:52px; border-radius:50%; background:var(--ance-blue); color:#fff; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:600; letter-spacing:-0.01em">${i.initials}</div>
+      <div style="flex:1; min-width:0">
+        <div class="lista-head" style="margin-bottom:3px">
+          <span class="lista-time">⏱ ${i.time}</span>
+          <span class="lista-id">#${i.id}</span>
+        </div>
+        <div class="lista-relatore" style="font-size:14.5px">${i.relatore}</div>
+        <div class="lista-titolo" style="color:var(--ance-orange); font-weight:500; font-size:12px; margin-top:1px; margin-bottom:6px">${i.role}</div>
+        <div class="lista-tags">
+          ${i.tagLabels.slice(0,2).map(t => `<span class="lista-tag">${t}</span>`).join("")}
+        </div>
+      </div>
+    </div>
+  `).join("");
+  grid.querySelectorAll(".lista-card").forEach(el => {
+    el.addEventListener("click", () => {
+      const i = INTERVENTI.find(x => x.id === el.dataset.id);
+      if (i) goToIntervento(i);
+    });
+  });
 }
 
 /* ═══════════════════════ LISTA INTERVENTI ═══════════════════════ */
@@ -3176,4 +3191,5 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
 
