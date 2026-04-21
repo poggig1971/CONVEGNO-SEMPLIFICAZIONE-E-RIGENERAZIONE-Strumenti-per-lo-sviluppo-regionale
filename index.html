@@ -57,19 +57,15 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
-.app {
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
-}
-
 /* ═══════════════════════════════════════════════════════════
-   APP SHELL · griglia principale 100vh
+   APP SHELL · griglia principale 100dvh
    ═══════════════════════════════════════════════════════════ */
 .app {
   display: grid;
   grid-template-rows: var(--header-h) 1fr;
-  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   transition: grid-template-rows 0.3s ease;
 }
 .app.header-collapsed {
