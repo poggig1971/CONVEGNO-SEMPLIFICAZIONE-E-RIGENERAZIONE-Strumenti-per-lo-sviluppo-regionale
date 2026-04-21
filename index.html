@@ -1960,6 +1960,10 @@ html, body {
           <span class="label-text">Documenti</span>
           <span class="nav-count">13</span>
         </button>
+        <button class="nav-item" data-view="comunicato">
+          <span class="nav-icon">📰</span>
+          <span class="label-text">Comunicato stampa</span>
+        </button>
 
         <div class="nav-section">Strumenti</div>
         <button class="nav-item" onclick="openOverlay()">
@@ -2103,29 +2107,6 @@ html, body {
             </div>
             <div class="themes-mini-grid" id="temiMini"></div>
           </div>
-
-          <!-- Comunicato stampa -->
-          <div class="themes-mini" style="margin-top:16px">
-            <div class="themes-mini-head">
-              <span>📰 Dal comunicato stampa · 21 aprile 2026</span>
-              <span class="sub">dichiarazioni ufficiali</span>
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px; margin-top:10px">
-              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--ance-orange); border-radius:4px">
-                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-orange); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Marco Gallo</div>
-                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«Regole chiare e tempi certi che permettano alle nostre imprese di progettare con fiducia il futuro degli spazi urbani.»</div>
-              </div>
-              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--ance-blue); border-radius:4px">
-                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-blue); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Paola Malabaila</div>
-                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«La semplificazione normativa e la rigenerazione urbana sono condizioni necessarie per garantire competitività e sviluppo.»</div>
-              </div>
-              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--text-dim); border-radius:4px">
-                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Davide Gilardino · ANCI</div>
-                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«La legge Cresci Piemonte rappresenta un cambio di passo decisivo.»</div>
-                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--text-faint); margin-top:6px; letter-spacing:0.03em">Dichiarazione pre-evento · sostituito dal Vicepres. Cavassa</div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- VIEW: INTERVENTO · pannello info (il video è nel player globale sopra) -->
@@ -2187,6 +2168,66 @@ html, body {
             <h2 class="view-title"><span class="icon">📁</span>Documenti e slide</h2>
             <p class="view-sub">Slide dei relatori in PDF · archivio su Google Drive</p>
             <div class="docs-grid" id="docsGrid"></div>
+          </div>
+        </div>
+
+        <!-- VIEW: COMUNICATO STAMPA -->
+        <div class="view" data-view="comunicato">
+          <div class="view-pad">
+            <h2 class="view-title"><span class="icon">📰</span>Comunicato stampa ufficiale</h2>
+            <p class="view-sub">ANCE Piemonte Valle d'Aosta · 21 aprile 2026 · dichiarazioni istituzionali diffuse alla stampa</p>
+
+            <!-- Header istituzionale -->
+            <div style="background:linear-gradient(135deg, var(--ance-blue) 0%, #2a4ba0 100%); color:#fff; padding:22px 26px; border-radius:var(--radius); margin-bottom:18px">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; opacity:0.8">Comunicato stampa · 21.04.2026</div>
+              <div style="font-size:22px; font-weight:600; letter-spacing:-0.01em; margin-top:6px; line-height:1.25">Semplificazione e Rigenerazione: strumenti normativi per lo sviluppo del Piemonte</div>
+              <div style="font-size:13px; opacity:0.85; margin-top:10px; line-height:1.5">Convegno ANCE Piemonte Valle d'Aosta · con il patrocinio di Regione Piemonte, ANCI Piemonte, FIOPA · in collaborazione con Ordini professionali (Ingegneri Torino, Architetti PPC, Collegio Geometri)</div>
+              <div style="display:flex; gap:8px; margin-top:16px; flex-wrap:wrap">
+                <a id="comStampaOpen" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.24); color:#fff; text-decoration:none; border-radius:6px; font-size:12.5px; font-weight:500; transition:background .15s">
+                  📄 <span>Apri PDF in Drive</span>
+                </a>
+                <a id="comStampaDownload" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:#fbbf24; border:1px solid #fbbf24; color:#1e3a8a; text-decoration:none; border-radius:6px; font-size:12.5px; font-weight:600; transition:background .15s">
+                  ⬇ <span>Scarica PDF</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Dichiarazioni ufficiali (estratti verbatim) -->
+            <div style="margin-bottom:20px">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint); letter-spacing:0.1em; text-transform:uppercase; font-weight:600; margin-bottom:10px">⸺ Dichiarazioni ufficiali</div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px">
+                <div style="padding:16px 18px; background:var(--bg-soft); border-left:3px solid var(--ance-orange); border-radius:4px">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-orange); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Marco Gallo</div>
+                  <div style="font-size:11px; color:var(--text-faint); margin-top:2px">Assessore all'Urbanistica · Regione Piemonte</div>
+                  <div style="font-size:13px; color:var(--text-dim); margin-top:10px; line-height:1.55; font-style:italic">«Regole chiare e tempi certi che permettano alle nostre imprese di progettare con fiducia il futuro degli spazi urbani.»</div>
+                </div>
+                <div style="padding:16px 18px; background:var(--bg-soft); border-left:3px solid var(--ance-blue); border-radius:4px">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-blue); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Paola Malabaila</div>
+                  <div style="font-size:11px; color:var(--text-faint); margin-top:2px">Presidente ANCE Piemonte Valle d'Aosta</div>
+                  <div style="font-size:13px; color:var(--text-dim); margin-top:10px; line-height:1.55; font-style:italic">«La semplificazione normativa e la rigenerazione urbana sono condizioni necessarie per garantire competitività e sviluppo.»</div>
+                </div>
+                <div style="padding:16px 18px; background:var(--bg-soft); border-left:3px solid var(--text-dim); border-radius:4px">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Davide Gilardino</div>
+                  <div style="font-size:11px; color:var(--text-faint); margin-top:2px">Presidente ANCI Piemonte</div>
+                  <div style="font-size:13px; color:var(--text-dim); margin-top:10px; line-height:1.55; font-style:italic">«La legge Cresci Piemonte rappresenta un cambio di passo decisivo.»</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--text-faint); margin-top:8px; letter-spacing:0.03em; padding-top:8px; border-top:1px dashed var(--border)">Dichiarazione pre-evento · in convegno sostituito dal Vicepres. Cavassa</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PDF embed -->
+            <div style="margin-top:20px">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">⸺ Testo integrale</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint)">PDF · Google Drive</div>
+              </div>
+              <div style="border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:#f8fafc">
+                <iframe id="comStampaIframe" src="" style="width:100%; height:780px; border:0; display:block" allow="autoplay" loading="lazy"></iframe>
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-faint); margin-top:8px; text-align:right; letter-spacing:0.04em">
+                Se il documento non si carica, <a id="comStampaFallback" href="#" target="_blank" rel="noopener" style="color:var(--ance-blue); text-decoration:underline">aprilo direttamente su Drive →</a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2414,7 +2455,8 @@ const DRIVE = {
   folderImmagini: "1eTZFuGcCOFZBb2EnDiuxiZQ9jk7TcPgU",
   locandina: "1PwFuHqG7dlfnood3ZgHW_69vNo626UoY",
   slideFileUnico: "1ohJfzAuP-grJO_bw_zWgSJt8hWIzeJhc",
-  slideCopertina: "1pDNS-VEZ7g_8g65mgY7NF_FztnLQvuCM"
+  slideCopertina: "1pDNS-VEZ7g_8g65mgY7NF_FztnLQvuCM",
+  comunicatoStampa: "1aTcJwhoMlUhzIsqpwWw5imimtnyQMWiF"
 };
 // Immagini JPG esportate dalle slide saluti (una per relatore)
 const IMG_SALUTI = {
@@ -2865,6 +2907,14 @@ function bindHeroLinks() {
   document.getElementById("heroLocandina").href = driveView(DRIVE.locandina);
   document.getElementById("heroDriveAll").href = driveFolder(DRIVE.folderSlide);
   document.getElementById("heroSlideUnico").href = driveDownload(DRIVE.slideFileUnico);
+  // Comunicato stampa · iframe + CTA
+  const csId = DRIVE.comunicatoStampa;
+  if (csId) {
+    document.getElementById("comStampaOpen").href = driveView(csId);
+    document.getElementById("comStampaDownload").href = driveDownload(csId);
+    document.getElementById("comStampaFallback").href = driveView(csId);
+    document.getElementById("comStampaIframe").src = drivePreview(csId);
+  }
 }
 
 /* ═══════════════════════ TIMELINE ═══════════════════════ */
@@ -2970,7 +3020,17 @@ function buildTemi() {
       <div class="theme-mini-count"><strong>${t.computedCount}</strong> ${t.computedCount === 1 ? "intervento" : "interventi"}</div>
     </div>`;
   }).join("");
-  document.getElementById("temiMini").innerHTML = miniHtml;
+
+  // §09 card speciale · Tavola rotonda (raggruppa #12 panel + #13 conclusioni Gallo)
+  const trIds = ["12", "13"].filter(id => INTERVENTI.find(i => i.id === id));
+  const trHtml = trIds.length ? `
+    <div class="theme-mini theme-mini-special" data-special="tavola-rotonda" style="background:linear-gradient(135deg, var(--ance-orange-soft) 0%, var(--bg-soft) 100%); border-color:var(--ance-orange)">
+      <div class="theme-mini-code" style="color:var(--ance-orange); font-weight:600">§ 09</div>
+      <div class="theme-mini-label">Tavola rotonda · Dibattito conclusivo</div>
+      <div class="theme-mini-count"><strong>${trIds.length}</strong> ${trIds.length === 1 ? "intervento" : "interventi"} <span style="color:var(--text-faint); margin-left:4px">#${trIds.join(" · #")}</span></div>
+    </div>` : "";
+
+  document.getElementById("temiMini").innerHTML = miniHtml + trHtml;
 
   const fullHtml = TEMI.map(t => {
     const empty = t.computedCount === 0;
@@ -2994,6 +3054,16 @@ function buildTemi() {
   // Aggancio click handler: apre overlay filtrato
   document.querySelectorAll('.tema-card, .theme-mini').forEach(el => {
     el.addEventListener("click", () => {
+      // Card speciale §09 · Tavola rotonda (non è un TEMI, filtra ID diretti)
+      if (el.dataset.special === "tavola-rotonda") {
+        const ids = ["12", "13"].filter(id => INTERVENTI.find(i => i.id === id));
+        if (!ids.length) return;
+        openOverlay({
+          matchedIds: ids,
+          matchedLabel: "Tavola rotonda · Dibattito conclusivo"
+        });
+        return;
+      }
       const code = el.dataset.temacode;
       const tema = TEMI.find(t => t.code === code);
       if (!tema || tema.computedCount === 0) return;
@@ -3195,7 +3265,8 @@ function switchView(view) {
     intervento: ["▶ Intervento in ascolto", currentIntervento?.time || ""],
     temi: ["🏷 Temi e normativa", "tassonomia"],
     podcast: ["🎧 Podcast AI", "sintesi NotebookLM"],
-    documenti: ["📁 Documenti e slide", "archivio PDF"]
+    documenti: ["📁 Documenti e slide", "archivio PDF"],
+    comunicato: ["📰 Comunicato stampa", "dichiarazioni ufficiali · 21.04.2026"]
   };
   const [title, sub] = titles[view] || ["—", ""];
   document.getElementById("wsTitle").innerHTML = title;
