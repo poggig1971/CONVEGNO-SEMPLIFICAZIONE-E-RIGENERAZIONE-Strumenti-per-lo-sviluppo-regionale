@@ -1,0 +1,3077 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Convegno · Semplificazione e Rigenerazione · 21.04.2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   TOKENS · coerenti con CMO Dashboard ANCE
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #f8fafc;
+  --bg-soft: #f1f5f9;
+  --panel: #ffffff;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --ance-blue: #1e3a8a;
+  --ance-blue-hover: #1e40af;
+  --ance-blue-soft: #eff6ff;
+  --ance-blue-softer: #f5f8ff;
+  --ance-orange: #ea580c;
+  --ance-orange-soft: #fff7ed;
+
+  --text: #0f172a;
+  --text-dim: #475569;
+  --text-faint: #94a3b8;
+
+  --live: #16a34a;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.04);
+  --shadow: 0 2px 8px rgba(15,23,42,0.06);
+  --shadow-md: 0 8px 24px rgba(15,23,42,0.12);
+  --shadow-lg: 0 24px 48px rgba(15,23,42,0.18);
+
+  --radius: 8px;
+  --radius-sm: 6px;
+
+  /* Layout dimensions */
+  --header-h: 52px;
+  --header-h-collapsed: 8px;
+  --sidebar-w: 220px;
+  --timeline-h: 56px;
+  --inspector-w: 360px;
+  --tabs-w: 44px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APP SHELL · griglia principale 100vh
+   ═══════════════════════════════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-rows: var(--header-h) 1fr;
+  height: 100vh;
+  transition: grid-template-rows 0.3s ease;
+}
+.app.header-collapsed {
+  grid-template-rows: var(--header-h-collapsed) 1fr;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER · sottile, a scomparsa
+   ═══════════════════════════════════════════════════════════ */
+.header {
+  background: var(--ance-blue);
+  color: #fff;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  z-index: 50;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.app.header-collapsed .header {
+  padding: 0;
+  background: var(--ance-orange);
+}
+.app.header-collapsed .header-content { opacity: 0; }
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  transition: opacity 0.2s ease;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-logo {
+  width: 32px; height: 32px;
+  background: #fff;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ance-blue);
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: 10px;
+}
+.header-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.header-title strong { font-weight: 700; }
+.header-title .sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.75;
+  font-family: "IBM Plex Mono", monospace;
+  margin-top: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+}
+.header-pill {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 4px 9px;
+  border-radius: 5px;
+}
+.header-pill strong { color: #fbbf24; }
+.header-collapse-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.header-collapse-btn:hover { background: rgba(255,255,255,0.22); }
+.header-collapse-btn svg { width: 12px; height: 12px; }
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN · sidebar + workspace + inspector
+   ═══════════════════════════════════════════════════════════ */
+.main {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr auto;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR · menu navigazione
+   ═══════════════════════════════════════════════════════════ */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-nav {
+  flex: 1;
+  padding: 14px 10px;
+  overflow-y: auto;
+}
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-strong); }
+
+.nav-section {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 14px 12px 8px;
+  font-weight: 500;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: all 0.15s;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--bg-soft); color: var(--text); }
+.nav-item.active {
+  background: var(--ance-blue-soft);
+  color: var(--ance-blue);
+  font-weight: 600;
+}
+.nav-item.active .nav-icon { color: var(--ance-orange); }
+.nav-icon {
+  font-size: 16px;
+  width: 18px;
+  text-align: center;
+  color: var(--text-faint);
+  transition: color 0.15s;
+}
+.nav-count {
+  margin-left: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  background: var(--bg-soft);
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.nav-item.active .nav-count {
+  background: var(--ance-blue);
+  color: #fff;
+}
+
+/* Progress footer nel menu */
+.sidebar-footer {
+  border-top: 1px solid var(--border);
+  padding: 14px 16px;
+}
+.progress-lbl {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.progress-txt {
+  font-size: 12.5px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.progress-txt strong { color: var(--ance-blue); }
+.progress-bar {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ance-blue), var(--ance-orange));
+  transition: width 0.4s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WORKSPACE · area centrale
+   ═══════════════════════════════════════════════════════════ */
+.workspace {
+  display: grid;
+  grid-template-rows: 48px var(--timeline-h) 1fr;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Workspace topbar — ricerca trigger + title */
+.ws-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  gap: 14px;
+}
+.ws-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.ws-title .icon { margin-right: 8px; color: var(--ance-orange); }
+.ws-sub {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-left: 10px;
+}
+
+.ws-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 12.5px;
+  transition: all 0.15s;
+  font-family: inherit;
+  min-width: 220px;
+}
+.search-trigger:hover {
+  border-color: var(--ance-blue);
+  background: #fff;
+}
+.search-trigger svg { width: 14px; height: 14px; }
+.search-trigger .kbd {
+  margin-left: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  padding: 1px 5px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-faint);
+}
+.icon-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.icon-btn:hover { background: var(--bg-soft); color: var(--ance-blue); border-color: var(--ance-blue); }
+.icon-btn svg { width: 14px; height: 14px; }
+
+/* Timeline orizzontale */
+.timeline {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+}
+.timeline::-webkit-scrollbar { height: 4px; }
+.timeline::-webkit-scrollbar-thumb { background: var(--border-strong); }
+.tl-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  font-weight: 500;
+  padding-right: 12px;
+  border-right: 1px solid var(--border);
+  height: 28px;
+  display: flex; align-items: center;
+}
+.tl-track {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+}
+.tl-node {
+  min-width: 56px;
+  flex: 1;
+  max-width: 110px;
+  padding: 6px 8px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.tl-node:hover {
+  border-color: var(--ance-blue);
+  color: var(--ance-blue);
+  background: #fff;
+}
+.tl-node.active {
+  background: var(--ance-blue);
+  border-color: var(--ance-blue);
+  color: #fff;
+  font-weight: 600;
+}
+.tl-node.done::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: var(--live);
+}
+.tl-node .tl-t { font-weight: 600; display: block; }
+.tl-node .tl-n { opacity: 0.7; font-size: 9px; }
+.tl-node.active .tl-n { opacity: 1; }
+
+/* Content area */
+.ws-content {
+  overflow: hidden;
+  position: relative;
+}
+
+/* View default (panoramica) */
+.view {
+  display: none;
+  height: 100%;
+  overflow: auto;
+  padding: 20px;
+}
+.view.active { display: block; }
+.view::-webkit-scrollbar { width: 6px; }
+.view::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW: PANORAMICA
+   ═══════════════════════════════════════════════════════════ */
+.panorama-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.kpi {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.kpi-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.kpi-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ance-blue);
+  margin-top: 3px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.kpi-value sup {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-left: 3px;
+  font-weight: 400;
+}
+.kpi-foot {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.kpi-foot .acc { color: var(--ance-orange); font-weight: 500; }
+
+/* Monitor saluti card */
+.monitor-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.monitor-head {
+  background: var(--ance-blue-soft);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--ance-blue);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.monitor-head .idx { color: var(--text-faint); }
+
+.monitor-stage {
+  position: relative;
+  flex: 1;
+  min-height: 180px;
+  padding: 20px 22px;
+}
+.slide {
+  opacity: 0;
+  position: absolute;
+  left: 22px; right: 22px; top: 20px; bottom: 20px;
+  transition: opacity 0.5s ease;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.slide.active { opacity: 1; }
+.slide-avatar {
+  flex-shrink: 0;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--ance-blue);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+.slide-body { flex: 1; min-width: 0; }
+.slide-role {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--ance-orange);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+.slide-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+.slide-quote {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.5;
+  padding-left: 12px;
+  border-left: 2px solid var(--ance-orange);
+}
+
+.monitor-progress {
+  height: 3px;
+  background: var(--border);
+  position: relative;
+}
+.monitor-progress-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--ance-orange);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.monitor-nav {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px;
+  background: var(--bg-soft);
+  border-top: 1px solid var(--border);
+}
+.monitor-nav button {
+  width: 24px; height: 4px;
+  border: none;
+  background: var(--border-strong);
+  cursor: pointer;
+  padding: 0;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.monitor-nav button:hover { background: var(--text-faint); }
+.monitor-nav button.active { background: var(--ance-blue); width: 36px; }
+
+/* Hero panorama */
+.hero-card {
+  background: linear-gradient(135deg, var(--ance-blue) 0%, #3b5bb5 100%);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-card::after {
+  content: "";
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(234,88,12,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.hero-title {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.hero-title .orange { color: #fbbf24; }
+.hero-sub {
+  font-size: 13.5px;
+  opacity: 0.85;
+  max-width: 620px;
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  opacity: 0.82;
+  letter-spacing: 0.02em;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.18);
+}
+.hero-meta span { display: flex; align-items: center; gap: 6px; }
+.hero-meta strong { font-weight: 600; opacity: 1; }
+
+/* Temi grid in panorama */
+.themes-mini {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.themes-mini-head {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.themes-mini-head .sub {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.themes-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 6px;
+}
+.theme-mini {
+  padding: 9px 11px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.theme-mini:hover {
+  border-color: var(--ance-orange);
+  background: var(--ance-orange-soft);
+}
+.theme-mini-code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9.5px;
+  color: var(--ance-orange);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.theme-mini-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+.theme-mini-count {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.theme-mini-count strong { color: var(--ance-blue); }
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW: INTERVENTI (player + contenuto)
+   ═══════════════════════════════════════════════════════════ */
+.view-intervento {
+  display: none;
+  height: 100%;
+  padding: 16px;
+  overflow: hidden;
+  flex-direction: column;
+  gap: 16px;
+}
+.view-intervento.active { display: flex; }
+
+.player-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+.player-head {
+  padding: 10px 16px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.player-head .live-dot {
+  color: var(--live);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.player-head .live-dot::before {
+  content: "▶";
+  color: var(--ance-orange);
+}
+.player-16x9 {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: linear-gradient(135deg, #1a2850 0%, #0f172a 100%);
+}
+.player-placeholder {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  padding: 24px;
+  color: #fff;
+}
+.player-placeholder .play-btn {
+  width: 64px; height: 64px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(6px);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.player-placeholder .play-btn:hover { background: var(--ance-orange); border-color: var(--ance-orange); }
+.player-placeholder .play-btn svg { width: 22px; height: 22px; color: #fff; margin-left: 3px; }
+.player-placeholder .cue {
+  font-size: 19px;
+  font-weight: 600;
+  max-width: 520px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.player-placeholder .ts {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: #fbbf24;
+  padding: 4px 12px;
+  background: rgba(0,0,0,0.4);
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.03em;
+}
+.player-placeholder .lbl {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  opacity: 0.7;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW: INDICE INTERVENTI (lista)
+   ═══════════════════════════════════════════════════════════ */
+.view-lista { padding: 20px; }
+.lista-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.lista-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.lista-card:hover {
+  border-color: var(--ance-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.lista-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.lista-time {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--ance-blue);
+  font-weight: 600;
+}
+.lista-id {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+}
+.lista-relatore {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
+}
+.lista-titolo {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.lista-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.lista-tag {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9.5px;
+  padding: 2px 6px;
+  background: var(--ance-blue-soft);
+  color: var(--ance-blue);
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW: TEMI (indice)
+   ═══════════════════════════════════════════════════════════ */
+.temi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.tema-card {
+  padding: 16px 18px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.tema-card:hover {
+  border-color: var(--ance-orange);
+  background: var(--ance-orange-soft);
+}
+.tema-code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--ance-orange);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+.tema-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 4px;
+  letter-spacing: -0.01em;
+}
+.tema-count {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+.tema-count strong { color: var(--ance-blue); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW: PODCAST (lista)
+   ═══════════════════════════════════════════════════════════ */
+.podcast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.pod-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pod-row:hover { border-color: var(--ance-blue); }
+.pod-row-num {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--text-faint);
+  font-weight: 500;
+  width: 30px;
+  flex-shrink: 0;
+}
+.pod-row-play {
+  width: 36px; height: 36px;
+  background: var(--ance-blue-soft);
+  color: var(--ance-blue);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pod-row-play svg { width: 12px; height: 12px; margin-left: 2px; }
+.pod-row-body { flex: 1; min-width: 0; }
+.pod-row-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pod-row-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pod-row-dur {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW: DOCUMENTI
+   ═══════════════════════════════════════════════════════════ */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.doc-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.doc-card:hover { border-color: var(--ance-blue); transform: translateY(-1px); box-shadow: var(--shadow); }
+.doc-thumb {
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, var(--ance-blue) 0%, #3b5bb5 100%);
+  color: #fff;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.doc-thumb::after {
+  content: "";
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+}
+.doc-thumb-hdr {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9.5px;
+  opacity: 0.75;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.doc-thumb-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 6px;
+}
+.doc-thumb-foot {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  opacity: 0.8;
+  display: flex;
+  justify-content: space-between;
+}
+.doc-info {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+.doc-info-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.doc-info-meta {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INSPECTOR · pannelli destra a linguette
+   ═══════════════════════════════════════════════════════════ */
+.inspector {
+  display: flex;
+  flex-direction: row-reverse;
+  height: 100%;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  transition: width 0.25s ease;
+}
+
+.inspector-tabs {
+  display: flex;
+  flex-direction: column;
+  width: var(--tabs-w);
+  background: var(--bg-soft);
+  border-left: 1px solid var(--border);
+  padding: 10px 4px;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.insp-tab {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  font-size: 15px;
+}
+.insp-tab:hover { background: var(--panel); color: var(--ance-blue); }
+.insp-tab.active {
+  background: var(--panel);
+  color: var(--ance-blue);
+  border-color: var(--border);
+  box-shadow: -2px 0 0 var(--ance-orange);
+}
+.insp-tab .label {
+  position: absolute;
+  right: 52px;
+  top: 50%;
+  transform: translateY(-50%) translateX(10px);
+  background: var(--text);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.insp-tab:hover .label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.insp-tab-badge {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 6px; height: 6px;
+  background: var(--ance-orange);
+  border-radius: 50%;
+}
+
+.inspector-body {
+  width: var(--inspector-w);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s ease, opacity 0.2s ease;
+}
+.inspector.closed .inspector-body {
+  width: 0;
+  opacity: 0;
+}
+
+.insp-panel {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.insp-panel.active { display: flex; }
+
+.insp-head {
+  padding: 12px 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.insp-head-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.insp-head-title .icon { font-size: 14px; }
+.insp-head-hash {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+}
+
+.insp-content {
+  padding: 16px 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+.insp-content::-webkit-scrollbar { width: 4px; }
+.insp-content::-webkit-scrollbar-thumb { background: var(--border-strong); }
+
+/* Dossier relatore */
+.rel-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--ance-blue);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.rel-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.rel-role {
+  font-size: 12.5px;
+  color: var(--ance-orange);
+  font-weight: 500;
+  margin-top: 3px;
+}
+.rel-bio {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.rel-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.rel-stat {
+  background: var(--bg-soft);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+}
+.rel-stat-lbl {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.rel-stat-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ance-blue);
+  margin-top: 2px;
+}
+
+/* Transcript */
+.tr-head {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  font-weight: 500;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+}
+.tr-line {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: 10px;
+  padding: 7px 0;
+  align-items: baseline;
+  border-bottom: 1px dashed var(--border);
+}
+.tr-line:last-child { border-bottom: 0; }
+.tr-line .t {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--ance-blue);
+  cursor: pointer;
+  font-weight: 500;
+}
+.tr-line .t:hover { text-decoration: underline; color: var(--ance-orange); }
+.tr-line .text {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.tr-line.current {
+  background: var(--ance-blue-soft);
+  margin: 0 -8px;
+  padding: 7px 8px;
+  border-radius: 4px;
+  border-bottom: 0;
+}
+.tr-line.current .text { color: var(--text); }
+
+/* Slide panel */
+.slide-preview {
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, var(--ance-blue) 0%, #3b5bb5 100%);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.slide-preview::after {
+  content: "";
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.slide-prev-mock {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  opacity: 0.7;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.slide-prev-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 6px;
+  letter-spacing: -0.01em;
+}
+.slide-prev-foot {
+  display: flex;
+  justify-content: space-between;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  opacity: 0.85;
+  margin-top: 10px;
+}
+.slide-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.btn:hover { border-color: var(--ance-blue); color: var(--ance-blue); background: var(--ance-blue-soft); }
+.btn-primary {
+  background: var(--ance-blue);
+  border-color: var(--ance-blue);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--ance-blue-hover); border-color: var(--ance-blue-hover); color: #fff; }
+
+/* Podcast panel */
+.pod-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.pod-sub {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+.pod-badge {
+  display: inline-block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9.5px;
+  padding: 3px 7px;
+  background: var(--ance-orange-soft);
+  color: var(--ance-orange);
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.pod-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.pod-play {
+  width: 40px; height: 40px;
+  border: 0;
+  background: var(--ance-blue);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.pod-play:hover { background: var(--ance-blue-hover); }
+.pod-play svg { width: 13px; height: 13px; }
+.waveform {
+  flex: 1;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.wv-bar {
+  flex: 1;
+  background: var(--border-strong);
+  border-radius: 1px;
+  transition: background 0.2s;
+}
+.wv-bar.played { background: var(--ance-blue); }
+.wv-bar.current { background: var(--ance-orange); animation: wv 0.6s infinite; }
+@keyframes wv { 50% { transform: scaleY(1.15); } }
+.pod-time {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Tags panel */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  background: var(--ance-blue-soft);
+  color: var(--ance-blue);
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SEARCH OVERLAY
+   ═══════════════════════════════════════════════════════════ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+}
+.overlay.active { display: flex; animation: fadeIn 0.15s ease; }
+@keyframes fadeIn { from { opacity: 0; } }
+
+.overlay-box {
+  width: 720px;
+  max-width: 92vw;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  animation: slideDown 0.2s ease;
+}
+@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } }
+
+.ovr-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.ovr-search svg { width: 18px; height: 18px; color: var(--ance-orange); flex-shrink: 0; }
+#overlaySearchInput {
+  background: transparent;
+  border: 0; outline: 0;
+  font-family: inherit;
+  font-size: 17px;
+  color: var(--text);
+  width: 100%;
+}
+#overlaySearchInput::placeholder { color: var(--text-faint); }
+.ovr-close-kbd {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  padding: 3px 7px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.ovr-filters {
+  display: flex;
+  gap: 5px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  background: var(--bg-soft);
+}
+.ovr-filters::-webkit-scrollbar { display: none; }
+.ovr-filter {
+  font-family: inherit;
+  font-size: 11.5px;
+  padding: 4px 10px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.ovr-filter:hover { border-color: var(--ance-blue); color: var(--ance-blue); }
+.ovr-filter.active {
+  background: var(--ance-blue);
+  border-color: var(--ance-blue);
+  color: #fff;
+}
+
+.ovr-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.ovr-results::-webkit-scrollbar { width: 6px; }
+.ovr-results::-webkit-scrollbar-thumb { background: var(--border-strong); }
+
+.ovr-result {
+  padding: 12px 20px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.1s;
+}
+.ovr-result:hover {
+  background: var(--ance-blue-softer);
+  border-left-color: var(--ance-orange);
+}
+.ovr-result-top {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 3px;
+}
+.ovr-result-time {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--ance-blue);
+  font-weight: 600;
+}
+.ovr-result-id {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+.ovr-result-tag {
+  margin-left: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9.5px;
+  padding: 2px 6px;
+  background: var(--ance-blue-soft);
+  color: var(--ance-blue);
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.ovr-result-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.ovr-result-titolo {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.ovr-result-match {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+  padding-left: 10px;
+  border-left: 2px solid var(--ance-orange);
+  background: var(--ance-orange-soft);
+  padding: 5px 10px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 4px;
+}
+.ovr-result-match mark {
+  background: #fef08a;
+  color: var(--text);
+  padding: 0 2px;
+  font-weight: 600;
+  border-radius: 2px;
+}
+
+.ovr-empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.ovr-foot {
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  background: var(--bg-soft);
+}
+.ovr-foot-kbd {
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin: 0 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SHORTCUTS MODAL
+   ═══════════════════════════════════════════════════════════ */
+.shortcuts {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.shortcuts.active { display: flex; }
+.shortcuts-box {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  width: 440px;
+  max-width: 92vw;
+  overflow: hidden;
+}
+.shortcuts-head {
+  padding: 14px 20px;
+  background: var(--ance-blue);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+.shortcuts-body { padding: 12px 20px 16px; }
+.sh-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 13px;
+}
+.sh-row:last-child { border-bottom: 0; }
+.sh-desc { color: var(--text-dim); }
+.sh-keys { display: flex; gap: 4px; }
+.sh-key {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  padding: 3px 7px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-weight: 500;
+  min-width: 26px;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1400px) {
+  :root { --inspector-w: 320px; --sidebar-w: 200px; }
+}
+@media (max-width: 1100px) {
+  :root { --inspector-w: 280px; }
+  .panorama-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 880px) {
+  :root { --sidebar-w: 60px; }
+  .nav-item .label-text,
+  .nav-item .nav-count,
+  .nav-section,
+  .sidebar-footer { display: none; }
+  .nav-item { justify-content: center; }
+  .inspector-body { display: none; }
+  .inspector.closed .inspector-tabs { display: flex; }
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: #fff;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-family: "IBM Plex Mono", monospace;
+  z-index: 2000;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* No-view empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-faint);
+  padding: 40px;
+  text-align: center;
+  gap: 12px;
+}
+.empty-state .icon { font-size: 40px; opacity: 0.5; }
+.empty-state .msg { font-size: 14px; }
+
+/* View padding + wrapper */
+.view-pad {
+  padding: 20px 24px;
+}
+.view-title {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.view-title .icon { color: var(--ance-orange); margin-right: 8px; }
+.view-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ══════════ HEADER (a scomparsa) ══════════ -->
+  <header class="header" id="header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-logo">ANCE</div>
+        <div class="header-title">
+          <strong>Convegno</strong> Semplificazione e Rigenerazione
+          <span class="sub">21.04.2026 · CENTRO CONGRESSI REGIONE PIEMONTE</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="header-pill"><strong>3</strong> CFP · ING · ARCH · GEOM</span>
+        <button class="header-collapse-btn" id="headerCollapse" title="Nascondi header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <div class="main">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-nav">
+        <div class="nav-section">Navigazione</div>
+        <button class="nav-item active" data-view="panorama">
+          <span class="nav-icon">📊</span>
+          <span class="label-text">Panoramica</span>
+        </button>
+        <button class="nav-item" data-view="saluti">
+          <span class="nav-icon">🎙</span>
+          <span class="label-text">Saluti istituzionali</span>
+          <span class="nav-count">5</span>
+        </button>
+        <button class="nav-item" data-view="interventi">
+          <span class="nav-icon">🗂</span>
+          <span class="label-text">Interventi</span>
+          <span class="nav-count">13</span>
+        </button>
+        <button class="nav-item" data-view="temi">
+          <span class="nav-icon">🏷</span>
+          <span class="label-text">Temi e normativa</span>
+          <span class="nav-count">12</span>
+        </button>
+        <button class="nav-item" data-view="podcast">
+          <span class="nav-icon">🎧</span>
+          <span class="label-text">Podcast AI</span>
+          <span class="nav-count">13</span>
+        </button>
+        <button class="nav-item" data-view="documenti">
+          <span class="nav-icon">📁</span>
+          <span class="label-text">Documenti</span>
+          <span class="nav-count">11</span>
+        </button>
+
+        <div class="nav-section">Strumenti</div>
+        <button class="nav-item" onclick="openOverlay()">
+          <span class="nav-icon">🔍</span>
+          <span class="label-text">Ricerca</span>
+        </button>
+        <button class="nav-item" onclick="toggleShortcuts()">
+          <span class="nav-icon">⌨</span>
+          <span class="label-text">Scorciatoie</span>
+        </button>
+      </div>
+
+      <!-- Progress footer -->
+      <div class="sidebar-footer">
+        <div class="progress-lbl">La tua attività</div>
+        <div class="progress-txt">Ascoltati <strong id="progressCount">0</strong> di 13 interventi</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--text-faint); letter-spacing:0.04em; line-height:1.5">
+          📁 Slide su Google Drive<br>
+          🎥 Video YouTube · in attesa<br>
+          📜 Trascrizioni · in attesa<br>
+          🎧 Podcast AI · da generare
+        </div>
+      </div>
+    </nav>
+
+    <!-- WORKSPACE -->
+    <section class="workspace">
+
+      <!-- WS Topbar -->
+      <div class="ws-topbar">
+        <div style="display:flex; align-items:center">
+          <span class="ws-title" id="wsTitle"><span class="icon">📊</span>Panoramica</span>
+          <span class="ws-sub" id="wsSub">dossier convegno</span>
+        </div>
+        <div class="ws-actions">
+          <button class="search-trigger" onclick="openOverlay()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>Cerca nel convegno…</span>
+            <span class="kbd">⌘ K</span>
+          </button>
+          <button class="icon-btn" onclick="toggleShortcuts()" title="Scorciatoie">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Timeline orizzontale -->
+      <div class="timeline">
+        <span class="tl-label">⏱ Scaletta · 4h</span>
+        <div class="tl-track" id="tlTrack"></div>
+      </div>
+
+      <!-- Content area -->
+      <div class="ws-content">
+
+        <!-- VIEW: PANORAMICA -->
+        <div class="view active" data-view="panorama">
+          <div class="hero-card">
+            <div class="hero-label">Dossier convegno · 21 aprile 2026</div>
+            <h1 class="hero-title">Semplificazione &amp; <span class="orange">Rigenerazione</span></h1>
+            <p class="hero-sub">
+              Strumenti normativi regionali per lo sviluppo del Piemonte. Tredici interventi
+              tra L.R. 5/2026 "Cresci Piemonte", L.R. 16/2018 e revisione della L.R. 56/1977.
+            </p>
+            <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap">
+              <a id="heroLocandina" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); color:#fff; text-decoration:none; border-radius:6px; font-size:12.5px; font-weight:500; transition:background .15s">
+                📄 <span>Apri la locandina del convegno</span>
+              </a>
+              <a id="heroDriveAll" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); color:#fff; text-decoration:none; border-radius:6px; font-size:12.5px; font-weight:500; transition:background .15s">
+                📁 <span>Vedi tutte le slide su Drive</span>
+              </a>
+              <a id="heroSlideUnico" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:#fbbf24; border:1px solid #fbbf24; color:#1e3a8a; text-decoration:none; border-radius:6px; font-size:12.5px; font-weight:600; transition:background .15s">
+                ⬇ <span>Slide complete · file unico (8 MB)</span>
+              </a>
+            </div>
+            <div class="hero-meta">
+              <span>📅 <strong>21 aprile 2026</strong></span>
+              <span>📍 <strong>Centro Congressi Regione Piemonte</strong></span>
+              <span>⏱ <strong>09:00 — 13:00</strong></span>
+              <span>🎙 <strong>16 relatori</strong></span>
+              <span>⚖ <strong>Modera: Filomena Greco · Il Sole 24 Ore</strong></span>
+            </div>
+          </div>
+
+          <div class="panorama-grid">
+            <div class="kpi-grid">
+              <div class="kpi">
+                <div class="kpi-label">Interventi indicizzati</div>
+                <div class="kpi-value" data-target="13">0</div>
+                <div class="kpi-foot">trascrizione + <span class="acc">timestamp</span></div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Relatori</div>
+                <div class="kpi-value" data-target="16">0</div>
+                <div class="kpi-foot">istituzionali · tecnici · prof.</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Podcast AI</div>
+                <div class="kpi-value"><span data-target="13">0</span><sup>/13</sup></div>
+                <div class="kpi-foot"><span class="acc">italiano</span> · NotebookLM</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Minutaggio video</div>
+                <div class="kpi-value"><span data-target="235">0</span><sup>min</sup></div>
+                <div class="kpi-foot">jump-to-second · full-text</div>
+              </div>
+            </div>
+
+            <!-- Monitor saluti -->
+            <div class="monitor-card">
+              <div class="monitor-head">
+                <span>🎥 Saluti istituzionali · <em style="font-style:italic; opacity:0.75; font-weight:400">citazioni placeholder</em></span>
+                <span class="idx" id="monitorIdx">01 / 05</span>
+              </div>
+              <div class="monitor-stage" id="monitorStage"></div>
+              <div class="monitor-progress"><div class="monitor-progress-fill" id="monitorProgress"></div></div>
+              <div class="monitor-nav" id="monitorNav"></div>
+            </div>
+          </div>
+
+          <!-- Temi mini -->
+          <div class="themes-mini">
+            <div class="themes-mini-head">
+              <span>🗂 Indice tematico</span>
+              <span class="sub">scorrimento · click per filtrare</span>
+            </div>
+            <div class="themes-mini-grid" id="temiMini"></div>
+          </div>
+        </div>
+
+        <!-- VIEW: INTERVENTO (player) -->
+        <div class="view-intervento" data-view="intervento">
+          <div class="player-card">
+            <div class="player-head">
+              <span id="playerStatus">Intervento 01 di 13</span>
+              <span class="live-dot">in ascolto</span>
+            </div>
+            <div class="player-16x9">
+              <div class="player-placeholder">
+                <div class="lbl">YouTube embed · placeholder</div>
+                <button class="play-btn" onclick="markAsDone()">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <div class="cue" id="playerCue">Seleziona un intervento per avviare</div>
+                <div class="ts" id="playerTs">00:00:00 — 00:00:00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: SALUTI -->
+        <div class="view" data-view="saluti">
+          <div class="view-pad">
+            <h2 class="view-title"><span class="icon">🎙</span>Saluti istituzionali</h2>
+            <p class="view-sub">Le aperture dei cinque Presidenti e Assessori · scorrimento automatico ogni 6 secondi</p>
+          </div>
+          <div style="padding: 0 24px 24px">
+            <div class="monitor-card" style="height: calc(100% - 120px); min-height: 380px">
+              <div class="monitor-head">
+                <span>🎥 Monitor saluti · riproduzione automatica</span>
+                <span class="idx" id="monitorIdx2">01 / 05</span>
+              </div>
+              <div class="monitor-stage" id="monitorStage2" style="padding: 44px 48px"></div>
+              <div class="monitor-progress"><div class="monitor-progress-fill" id="monitorProgress2"></div></div>
+              <div class="monitor-nav" id="monitorNav2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: INTERVENTI (lista) -->
+        <div class="view" data-view="interventi">
+          <div class="view-pad">
+            <h2 class="view-title"><span class="icon">🗂</span>Interventi · scaletta completa</h2>
+            <p class="view-sub">Clicca una scheda per aprire il player video con trascrizione e slide</p>
+            <div class="lista-grid" id="listaGrid"></div>
+          </div>
+        </div>
+
+        <!-- VIEW: TEMI -->
+        <div class="view" data-view="temi">
+          <div class="view-pad">
+            <h2 class="view-title"><span class="icon">🏷</span>Temi e normativa</h2>
+            <p class="view-sub">Tassonomia editoriale · click per filtrare gli interventi correlati</p>
+            <div class="temi-grid" id="temiGridFull"></div>
+          </div>
+        </div>
+
+        <!-- VIEW: PODCAST -->
+        <div class="view" data-view="podcast">
+          <div class="view-pad">
+            <h2 class="view-title"><span class="icon">🎧</span>Podcast AI · sintesi in italiano</h2>
+            <p class="view-sub">Generati con NotebookLM · scaricabili in formato WAV/MP3 · clicca per ascoltare</p>
+            <div class="podcast-list" id="podcastList"></div>
+          </div>
+        </div>
+
+        <!-- VIEW: DOCUMENTI -->
+        <div class="view" data-view="documenti">
+          <div class="view-pad">
+            <h2 class="view-title"><span class="icon">📁</span>Documenti e slide</h2>
+            <p class="view-sub">Slide dei relatori in PDF · archivio su Google Drive</p>
+            <div class="docs-grid" id="docsGrid"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INSPECTOR -->
+    <aside class="inspector" id="inspector">
+      <div class="inspector-tabs">
+        <button class="insp-tab active" data-panel="relatore" title="Dossier relatore">
+          👤
+          <span class="label">Dossier relatore</span>
+        </button>
+        <button class="insp-tab" data-panel="trascrizione" title="Trascrizione">
+          📜
+          <span class="label">Trascrizione</span>
+        </button>
+        <button class="insp-tab" data-panel="slide" title="Slide">
+          📑
+          <span class="label">Slide</span>
+        </button>
+        <button class="insp-tab" data-panel="podcast" title="Podcast AI">
+          🎧
+          <span class="label">Podcast AI</span>
+        </button>
+        <button class="insp-tab" data-panel="tag" title="Tag tematici">
+          🏷
+          <span class="label">Tag tematici</span>
+        </button>
+      </div>
+      <div class="inspector-body">
+
+        <div class="insp-panel active" data-panel="relatore">
+          <div class="insp-head">
+            <div class="insp-head-title"><span class="icon">👤</span>Dossier relatore</div>
+            <div class="insp-head-hash" id="relHash">#01</div>
+          </div>
+          <div class="insp-content">
+            <div class="rel-avatar" id="relAvatar">—</div>
+            <div class="rel-name" id="relName">Seleziona un intervento</div>
+            <div class="rel-role" id="relRole">—</div>
+            <div class="rel-bio" id="relBio">Apri un intervento dalla timeline o dalla sezione "Interventi" per visualizzare dossier relatore, trascrizione e materiali.</div>
+            <div class="rel-stats">
+              <div class="rel-stat">
+                <div class="rel-stat-lbl">Durata</div>
+                <div class="rel-stat-val" id="relDur">—</div>
+              </div>
+              <div class="rel-stat">
+                <div class="rel-stat-lbl">Slide</div>
+                <div class="rel-stat-val" id="relSlides">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="insp-panel" data-panel="trascrizione">
+          <div class="insp-head">
+            <div class="insp-head-title"><span class="icon">📜</span>Trascrizione</div>
+            <div class="insp-head-hash" id="trCount">—</div>
+          </div>
+          <div class="insp-content">
+            <div class="tr-head">
+              <span>Segmenti sincronizzati</span>
+              <span id="trTotal">—</span>
+            </div>
+            <div id="trBody"></div>
+          </div>
+        </div>
+
+        <div class="insp-panel" data-panel="slide">
+          <div class="insp-head">
+            <div class="insp-head-title"><span class="icon">📑</span>Slide</div>
+            <div class="insp-head-hash" id="slideHash">PDF</div>
+          </div>
+          <div class="insp-content">
+            <div id="slideWrap" style="border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:#000; aspect-ratio: 4/3; display:flex; align-items:center; justify-content:center; color:#fff; position:relative;">
+              <iframe id="slideIframe" style="width:100%; height:100%; border:0; background:#fff" allow="autoplay" loading="lazy"></iframe>
+              <div id="slideEmpty" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #1e3a8a, #3b5bb5); color:#fff; text-align:center; padding:20px; gap:8px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; opacity:0.8; letter-spacing:0.1em; text-transform:uppercase">Nessuna slide</div>
+                <div id="slideEmptyTitle" style="font-size:14px; font-weight:600">Seleziona un intervento</div>
+              </div>
+            </div>
+            <div style="margin-top:10px">
+              <div class="pod-sub" id="slideTitle" style="font-weight:600; color:var(--text); font-size:13px">—</div>
+              <div class="pod-sub" id="slideSub" style="margin-top:2px">—</div>
+            </div>
+            <div class="slide-actions">
+              <a class="btn" id="slideOpen" href="#" target="_blank" rel="noopener" style="text-decoration:none">↗ Apri su Drive</a>
+              <a class="btn btn-primary" id="slideDown" href="#" target="_blank" rel="noopener" style="text-decoration:none">↓ Scarica PDF</a>
+            </div>
+            <div id="slideExtra" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border)">
+              <div class="pod-sub" style="margin-bottom:8px; font-weight:600">Slide aggiuntive dei co-relatori</div>
+              <div id="slideExtraList" style="display:flex; flex-direction:column; gap:6px"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="insp-panel" data-panel="podcast">
+          <div class="insp-head">
+            <div class="insp-head-title"><span class="icon">🎧</span>Podcast AI</div>
+            <div class="insp-head-hash">MP3</div>
+          </div>
+          <div class="insp-content">
+            <div class="pod-title" id="podTitle">—</div>
+            <div class="pod-sub" id="podSub">—</div>
+            <span class="pod-badge">NotebookLM · italiano</span>
+            <div class="pod-controls">
+              <button class="pod-play" id="podPlay">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+              <div class="waveform" id="waveform"></div>
+            </div>
+            <div class="pod-time">
+              <span id="podCurrent">00:00</span>
+              <span id="podTotal">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="insp-panel" data-panel="tag">
+          <div class="insp-head">
+            <div class="insp-head-title"><span class="icon">🏷</span>Tag tematici</div>
+            <div class="insp-head-hash">§</div>
+          </div>
+          <div class="insp-content">
+            <div class="tag-list" id="relTags"></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- ══════════ SEARCH OVERLAY ══════════ -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeOverlay()">
+  <div class="overlay-box">
+    <div class="ovr-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="overlaySearchInput" placeholder="Cerca tra relatori, normativa, trascrizione…" />
+      <span class="ovr-close-kbd">ESC per chiudere</span>
+    </div>
+    <div class="ovr-filters" id="ovrFilters">
+      <button class="ovr-filter active" data-tag="all">Tutti</button>
+      <button class="ovr-filter" data-tag="saluti">Saluti</button>
+      <button class="ovr-filter" data-tag="lr5-2026">L.R. 5/2026</button>
+      <button class="ovr-filter" data-tag="lr16-2018">L.R. 16/2018</button>
+      <button class="ovr-filter" data-tag="lr56-1977">L.R. 56/1977</button>
+      <button class="ovr-filter" data-tag="rigenerazione">Rigenerazione</button>
+      <button class="ovr-filter" data-tag="caso-studio">Caso studio</button>
+      <button class="ovr-filter" data-tag="dibattito">Dibattito</button>
+      <button class="ovr-filter" data-tag="conclusioni">Conclusioni</button>
+    </div>
+    <div class="ovr-results" id="ovrResults"></div>
+    <div class="ovr-foot">
+      <span><span class="ovr-foot-kbd">↑</span><span class="ovr-foot-kbd">↓</span> naviga · <span class="ovr-foot-kbd">↵</span> apre</span>
+      <span id="ovrCount">— risultati</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SHORTCUTS MODAL ══════════ -->
+<div class="shortcuts" id="shortcuts" onclick="if(event.target===this)toggleShortcuts()">
+  <div class="shortcuts-box">
+    <div class="shortcuts-head">
+      <span>⌨ Scorciatoie da tastiera</span>
+      <span style="cursor:pointer; opacity:0.8" onclick="toggleShortcuts()">✕</span>
+    </div>
+    <div class="shortcuts-body">
+      <div class="sh-row"><span class="sh-desc">Apri ricerca</span><div class="sh-keys"><span class="sh-key">⌘</span><span class="sh-key">K</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Intervento precedente</span><div class="sh-keys"><span class="sh-key">←</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Intervento successivo</span><div class="sh-keys"><span class="sh-key">→</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Salta a intervento N</span><div class="sh-keys"><span class="sh-key">1</span>—<span class="sh-key">9</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Toggle Trascrizione</span><div class="sh-keys"><span class="sh-key">T</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Toggle Slide</span><div class="sh-keys"><span class="sh-key">S</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Toggle Podcast</span><div class="sh-keys"><span class="sh-key">P</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Mostra/nascondi header</span><div class="sh-keys"><span class="sh-key">H</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Mostra questa guida</span><div class="sh-keys"><span class="sh-key">?</span></div></div>
+      <div class="sh-row"><span class="sh-desc">Chiudi overlay/modal</span><div class="sh-keys"><span class="sh-key">ESC</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════ DATA ═══════════════════════ */
+// Google Drive · cartella: 1izn5Dj7FNtCRl3whK5MmDYjR94CCYuCg
+// Account: direzione@ancepiemonte.it
+const DRIVE = {
+  folderMain: "1izn5Dj7FNtCRl3whK5MmDYjR94CCYuCg",
+  folderSlide: "10RMCbM4spao40bKUulZMX214PzFYlNH_",
+  locandina: "1PwFuHqG7dlfnood3ZgHW_69vNo626UoY",
+  slideFileUnico: "1ohJfzAuP-grJO_bw_zWgSJt8hWIzeJhc",
+  slideCopertina: "1pDNS-VEZ7g_8g65mgY7NF_FztnLQvuCM"
+};
+function drivePreview(id) { return id ? `https://drive.google.com/file/d/${id}/preview` : null; }
+function driveView(id) { return id ? `https://drive.google.com/file/d/${id}/view` : null; }
+function driveDownload(id) { return id ? `https://drive.google.com/uc?export=download&id=${id}` : null; }
+function driveFolder(id) { return `https://drive.google.com/drive/folders/${id}`; }
+
+// NB: le citazioni sono PLACEHOLDER · saranno sostituite con estratti reali
+// dalla trascrizione del convegno appena disponibile
+// Ordine reale dei saluti: Gallo, Malabaila, Amalberto, Marrone, Cavassa
+const SALUTI = [
+  { initials: "MG", role: "Assessore all'Urbanistica · Regione Piemonte", name: "Marco Gallo",
+    quote: "Il Cresci Piemonte è un atto politico: mette i Comuni in condizione di decidere, senza più nascondersi dietro la norma." },
+  { initials: "PM", role: "Presidente ANCE Piemonte VdA", name: "Paola Malabaila",
+    quote: "I costruttori chiedono regole leggibili e tempi certi: senza questo, nessuna rigenerazione è davvero possibile." },
+  { initials: "AA", role: "Presidente Confindustria Piemonte", name: "Andrea Amalberto",
+    quote: "L'edilizia è l'ossatura dell'economia regionale: ogni semplificazione normativa è investimento produttivo." },
+  { initials: "MM", role: "Vicepresidente Regione Piemonte", name: "Maurizio Marrone",
+    quote: "Un saluto a nome della Regione Piemonte e un ringraziamento ad ANCE per questa iniziativa." },
+  { initials: "SC", role: "ANCI Piemonte", name: "Silvia Cavassa",
+    quote: "I Sindaci sono in prima linea sulla rigenerazione urbana: servono strumenti chiari, non solo responsabilità." }
+];
+
+const INTERVENTI = [
+  { id: "01", time: "09:30", ts_range: "00:30:00 — 00:35:00", duration: "5 min",
+    relatore: "Marco Gallo", initials: "MG", role: "Assessore all'Urbanistica · Regione Piemonte",
+    titolo: "Saluto e apertura dei lavori", tags: ["saluti"], tagLabels: ["Saluti", "Urbanistica"],
+    cue: "Apertura dei lavori · saluto dell'Assessore all'Urbanistica",
+    bio: "Assessore regionale all'Urbanistica, Programmazione territoriale, Sport e Personale. Apre i lavori del convegno. Interviene anche nel dibattito conclusivo e tiene l'intervento finale di conclusioni.",
+    slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
+    slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    podTitle: "Apertura dei lavori · visione politica", podSub: "sintesi · da generare",
+    transcript: [
+      ["00:30:00", "[Trascrizione da produrre · apertura Assessore Gallo]"]
+    ]},
+  { id: "02", time: "09:35", ts_range: "00:35:00 — 00:40:00", duration: "5 min",
+    relatore: "Paola Malabaila", initials: "PM", role: "Presidente ANCE Piemonte VdA",
+    titolo: "Saluto del sistema associativo", tags: ["saluti"], tagLabels: ["Saluti", "Sistema associativo"],
+    cue: "Regole leggibili, tempi certi",
+    bio: "Presidente di ANCE Piemonte Valle d'Aosta. Imprenditrice del settore edile, attiva nel sistema confindustriale regionale. Interviene anche nel dibattito conclusivo.",
+    slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
+    slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    podTitle: "La voce dei costruttori", podSub: "sintesi · da generare",
+    transcript: [
+      ["00:35:00", "[Trascrizione da produrre · saluto Presidente Malabaila]"]
+    ]},
+  { id: "03", time: "09:40", ts_range: "00:40:00 — 00:45:00", duration: "5 min",
+    relatore: "Andrea Amalberto", initials: "AA", role: "Presidente Confindustria Piemonte",
+    titolo: "Saluto del sistema industriale", tags: ["saluti"], tagLabels: ["Saluti", "Industria"],
+    cue: "L'edilizia è ossatura dell'economia",
+    bio: "Presidente di Confindustria Piemonte, rappresenta il sistema industriale regionale.",
+    slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
+    slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    podTitle: "Semplificazione come leva industriale", podSub: "sintesi · da generare",
+    transcript: [
+      ["00:40:00", "[Trascrizione da produrre · saluto Presidente Amalberto]"]
+    ]},
+  { id: "04", time: "09:45", ts_range: "00:45:00 — 00:50:00", duration: "5 min",
+    relatore: "Maurizio Marrone", initials: "MM", role: "Vicepresidente Regione Piemonte",
+    titolo: "Saluto istituzionale", tags: ["saluti"], tagLabels: ["Saluti", "Politica regionale"],
+    cue: "Saluto del Vicepresidente della Regione Piemonte",
+    bio: "Vicepresidente Regione Piemonte. Assessore con deleghe a: Politiche sociali e integrazione socio-sanitaria, Emigrazione e cooperazione decentrata e internazionale, Usura e beni confiscati, Politiche della casa, delle famiglie e dei bambini, Lavoro e welfare aziendale. Interviene in sostituzione del Presidente Cirio indicato in locandina.",
+    slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
+    slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    podTitle: "Il saluto del Vicepresidente Marrone", podSub: "sintesi · da generare",
+    transcript: [
+      ["00:45:00", "[Trascrizione da produrre · saluto Vicepresidente Marrone]"]
+    ]},
+  { id: "05", time: "09:50", ts_range: "00:50:00 — 00:55:00", duration: "5 min",
+    relatore: "Silvia Cavassa", initials: "SC", role: "ANCI Piemonte",
+    titolo: "Saluto dei Comuni piemontesi", tags: ["saluti"], tagLabels: ["Saluti", "Enti locali"],
+    cue: "I Sindaci e la rigenerazione urbana",
+    bio: "Rappresentante di ANCI Piemonte. Porta il saluto dei Comuni piemontesi in sostituzione del Presidente Gilardino. Interviene anche nel panel conclusivo.",
+    slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
+    slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
+    podTitle: "I Sindaci e la riforma urbanistica", podSub: "sintesi · da generare",
+    transcript: [
+      ["00:50:00", "[Trascrizione da produrre · saluto ANCI Piemonte]"]
+    ]},
+  { id: "06", time: "10:00", ts_range: "01:00:00 — 01:15:00", duration: "15 min",
+    relatore: "Angelo Robotto", initials: "AR", role: "Direttore · Direzione Ambiente, Energia e Territorio",
+    titolo: "Introduzione ai lavori", tags: ["introduzione"], tagLabels: ["Introduzione", "Quadro normativo"],
+    cue: "Il filo conduttore della mattinata",
+    bio: "Direttore della Direzione Ambiente, Energia e Territorio della Regione Piemonte. Responsabile tecnico del coordinamento urbanistico regionale.",
+    slideTitle: "Introduzione ai lavori · quadro normativo",
+    slideSub: "PDF · 480 KB", slidesCount: 1,
+    slideFileId: "19OSES4JlbpakPE9f5zISVcWKUQ6bkxBh",
+    podTitle: "L'architettura del sistema urbanistico regionale", podSub: "sintesi · da generare",
+    transcript: [
+      ["01:00:00", "[Trascrizione da produrre · introduzione Direttore Robotto]"]
+    ]},
+  { id: "07", time: "10:15", ts_range: "01:15:00 — 01:40:00", duration: "25 min",
+    relatore: "Giovanni Paludi", initials: "GP", role: "Vice Direttore · Direzione Ambiente, Energia e Territorio",
+    titolo: "Il Cresci Piemonte — La L.R. 5/2026", tags: ["lr5-2026"], tagLabels: ["L.R. 5/2026", "Semplificazione"],
+    cue: "Una leva per lo sviluppo regionale",
+    bio: "Vice Direttore della Direzione Ambiente, Energia e Territorio. Tra i tecnici estensori della L.R. 5/2026.",
+    slideTitle: "L.R. 5/2026 Cresci Piemonte · articolato e ratio",
+    slideSub: "PDF · 406 KB", slidesCount: 1,
+    slideFileId: "1iBtGkfF9X-NFcc9vAiY3Gc8smo3LltMk",
+    podTitle: "Cresci Piemonte: cosa cambia davvero", podSub: "sintesi · da generare",
+    transcript: [
+      ["01:15:00", "[Trascrizione da produrre · Paludi su L.R. 5/2026]"]
+    ]},
+  { id: "08", time: "10:40", ts_range: "01:40:00 — 02:05:00", duration: "25 min",
+    relatore: "Mola · Silva · Trifirò", initials: "MST", role: "Responsabili Settori Urbanistica + Esperto Giuridico",
+    titolo: "La L.R. 16/2018 — Le potenzialità della legge", tags: ["lr16-2018", "rigenerazione"],
+    tagLabels: ["L.R. 16/2018", "Rigenerazione"],
+    cue: "Un'occasione da cogliere",
+    bio: "Alessandro Mola e Caterina Silva, Responsabili dei Settori Urbanistica della Regione Piemonte; Antonio Trifirò, Esperto Giuridico.",
+    slideTitle: "L.R. 16/2018 · strumenti operativi (4 file)",
+    slideSub: "PDF MULTIPLI · LR 16 + Silva + Mola + Trifirò", slidesCount: 4,
+    slideFileId: "1h3ESRNOQmcllRGcHPt0g80jkdobTZJq1",
+    extraSlides: [
+      { id: "114mIGd7Xy81IfluQucVuQIadj5Djb05c", label: "Silva" },
+      { id: "1aEpYrGB86hXqNk_-ZFOIN7UYYHQUOOoP", label: "Mola" },
+      { id: "132KVsRxCxzJNyOiRi2CpqT5ius5p5bRv", label: "Trifirò" }
+    ],
+    podTitle: "L.R. 16/2018: guida pratica", podSub: "sintesi · da generare",
+    transcript: [
+      ["01:40:00", "[Trascrizione da produrre · L.R. 16/2018 Mola-Silva-Trifirò]"]
+    ]},
+  { id: "09", time: "11:10", ts_range: "02:10:00 — 02:20:00", duration: "10 min",
+    relatore: "Lorenzo Busciglio", initials: "LB", role: "Sindaco · Comune di Beinette (CN)",
+    titolo: "Beinette — caso studio di rigenerazione", tags: ["caso-studio", "rigenerazione", "lr16-2018"],
+    tagLabels: ["Caso di studio", "Beinette"],
+    cue: "Un intervento concreto",
+    bio: "Sindaco del Comune di Beinette (CN). Ha promosso l'intervento di rigenerazione dell'area ex-industriale.",
+    slideTitle: "Beinette · caso studio di rigenerazione",
+    slideSub: "PDF · 4,2 MB", slidesCount: 1,
+    slideFileId: "1k49p1hpR2jZ9J3Ka5zk5x47O0HpeeSpv",
+    podTitle: "Da ex-industria a nuovo quartiere", podSub: "sintesi · da generare",
+    transcript: [
+      ["02:10:00", "[Trascrizione da produrre · Busciglio · caso Beinette]"]
+    ]},
+  { id: "10", time: "11:25", ts_range: "02:25:00 — 02:35:00", duration: "10 min",
+    relatore: "Daniele Musso", initials: "DM", role: "Ufficio Tecnico · Comune di Beinette",
+    titolo: "Beinette — profilo tecnico-procedurale", tags: ["caso-studio", "rigenerazione", "lr16-2018"],
+    tagLabels: ["Procedure", "Beinette"],
+    cue: "Il lavoro dell'ufficio tecnico",
+    bio: "Funzionario dell'Ufficio Tecnico del Comune di Beinette, responsabile procedurale dell'intervento.",
+    slideTitle: "Beinette · caso studio (slide condivise)",
+    slideSub: "SLIDE CONDIVISE · 09_BEINETTE", slidesCount: 1,
+    slideFileId: "1k49p1hpR2jZ9J3Ka5zk5x47O0HpeeSpv",
+    podTitle: "Una procedura replicabile", podSub: "sintesi · da generare",
+    transcript: [
+      ["02:25:00", "[Trascrizione da produrre · Musso · procedure Beinette]"]
+    ]},
+  { id: "11", time: "11:40", ts_range: "02:40:00 — 03:05:00", duration: "25 min",
+    relatore: "Giovanni Paludi", initials: "GP", role: "Vice Direttore · Direzione Ambiente, Energia e Territorio",
+    titolo: "La revisione della L.R. 56/1977", tags: ["lr56-1977"], tagLabels: ["L.R. 56/1977", "Riforma"],
+    cue: "Il processo di riforma",
+    bio: "Vice Direttore regionale, coordina il percorso di revisione della legge urbanistica piemontese.",
+    slideTitle: "L.R. 56/1977 · cantiere di riforma",
+    slideSub: "PDF · 487 KB", slidesCount: 1,
+    slideFileId: "1rkGNncS_vuuSLwjQBlWSgCsBF0YEblra",
+    podTitle: "La legge madre cambia volto", podSub: "sintesi · da generare",
+    transcript: [
+      ["02:40:00", "[Trascrizione da produrre · Paludi · revisione L.R. 56/1977]"]
+    ]},
+  { id: "12", time: "12:00", ts_range: "03:20:00 — 03:50:00", duration: "30 min",
+    relatore: "Panel conclusivo · 5 voci", initials: "PN",
+    role: "Gallo · Malabaila · Pugliese · Porro · Cavassa",
+    titolo: "Dibattito", tags: ["dibattito"], tagLabels: ["Dibattito", "Panel"],
+    cue: "La parola ai professionisti",
+    bio: "Panel moderato da Filomena Greco (Il Sole 24 Ore). Partecipanti: Gallo (Regione), Malabaila (ANCE), Pugliese (FederArch), Porro (FIOPA), Cavassa (ANCI). Le conclusioni politiche della giornata seguono il dibattito in un intervento dedicato dell'Assessore Gallo (#13).",
+    slideTitle: "Tavola rotonda · punti aperti",
+    slideSub: "PDF · 256 KB", slidesCount: 1,
+    slideFileId: "1rUNrgfWMBVKH7FPVVBNRgx8qJhXy2jN3",
+    podTitle: "Il confronto finale: cosa funziona, cosa no", podSub: "sintesi · da generare",
+    transcript: [
+      ["03:20:00", "[Trascrizione da produrre · panel dibattito]"]
+    ]},
+  { id: "13", time: "12:30", ts_range: "03:50:00 — 04:10:00", duration: "20 min",
+    relatore: "Marco Gallo", initials: "MG", role: "Assessore all'Urbanistica · Regione Piemonte",
+    titolo: "Conclusioni dei lavori", tags: ["conclusioni"], tagLabels: ["Conclusioni", "Sintesi politica"],
+    cue: "Conclusioni politiche dell'Assessore all'Urbanistica",
+    bio: "Assessore regionale all'Urbanistica, Programmazione territoriale, Sport e Personale. Chiude i lavori del convegno con la sintesi politica dopo il dibattito corale. È il suo terzo intervento della giornata (apertura, dibattito, conclusioni).",
+    slideTitle: "Conclusioni · sintesi politica", slideSub: "NESSUNA SLIDE SPECIFICA", slidesCount: 0,
+    slideFileId: null,
+    podTitle: "Le conclusioni: prossimi passi e impegni", podSub: "sintesi · da generare",
+    transcript: [
+      ["03:50:00", "[Trascrizione da produrre · conclusioni Assessore Gallo]"]
+    ]}
+];
+
+const TEMI = [
+  { code: "§ 01", label: "Semplificazione normativa", count: 6 },
+  { code: "§ 02", label: "Rigenerazione urbana", count: 5 },
+  { code: "§ 03", label: "L.R. 5/2026 Cresci Piemonte", count: 4 },
+  { code: "§ 04", label: "L.R. 16/2018", count: 3 },
+  { code: "§ 05", label: "L.R. 56/1977 revisione", count: 2 },
+  { code: "§ 06", label: "Deroghe volumetriche", count: 3 },
+  { code: "§ 07", label: "Cambio destinazione d'uso", count: 2 },
+  { code: "§ 08", label: "Caso studio Beinette", count: 2 },
+  { code: "§ 09", label: "Conferenza dei servizi", count: 2 },
+  { code: "§ 10", label: "Procedure digitali", count: 1 },
+  { code: "§ 11", label: "Piccoli Comuni", count: 3 },
+  { code: "§ 12", label: "Osservatorio normativo", count: 1 }
+];
+
+/* ═══════════════════════ STATE ═══════════════════════ */
+let currentIntervento = null;
+let currentView = "panorama";
+let currentInspPanel = "relatore";
+let doneInterventi = new Set();
+
+/* ═══════════════════════ BOOT ═══════════════════════ */
+document.addEventListener("DOMContentLoaded", () => {
+  loadProgress();
+  bindHeroLinks();
+  buildTimeline();
+  buildMonitors();
+  buildTemi();
+  buildLista();
+  buildPodcastList();
+  buildDocs();
+  buildWaveform();
+  bindNav();
+  bindInspector();
+  bindSearch();
+  bindShortcuts();
+  bindHeader();
+  selectIntervento(INTERVENTI[0]);
+  animateKPI();
+  startMonitorCarousel();
+  initPodcast();
+  updateProgress();
+});
+
+/* ═══════════════════════ HERO LINKS ═══════════════════════ */
+function bindHeroLinks() {
+  document.getElementById("heroLocandina").href = driveView(DRIVE.locandina);
+  document.getElementById("heroDriveAll").href = driveFolder(DRIVE.folderSlide);
+  document.getElementById("heroSlideUnico").href = driveDownload(DRIVE.slideFileUnico);
+}
+
+/* ═══════════════════════ TIMELINE ═══════════════════════ */
+function buildTimeline() {
+  const t = document.getElementById("tlTrack");
+  t.innerHTML = INTERVENTI.map(i => `
+    <div class="tl-node" data-id="${i.id}" title="${i.relatore} — ${i.titolo}">
+      <span class="tl-t">${i.time}</span>
+      <span class="tl-n">#${i.id}</span>
+    </div>
+  `).join("");
+  t.querySelectorAll(".tl-node").forEach(el => {
+    el.addEventListener("click", () => {
+      const i = INTERVENTI.find(x => x.id === el.dataset.id);
+      goToIntervento(i);
+    });
+  });
+}
+
+/* ═══════════════════════ MONITOR ═══════════════════════ */
+function buildMonitors() {
+  buildMonitor("monitorStage", "monitorNav");
+  buildMonitor("monitorStage2", "monitorNav2");
+}
+function buildMonitor(stageId, navId) {
+  const stage = document.getElementById(stageId);
+  const nav = document.getElementById(navId);
+  if (!stage || !nav) return;
+  stage.innerHTML = "";
+  nav.innerHTML = "";
+  SALUTI.forEach((s, i) => {
+    const slide = document.createElement("div");
+    slide.className = "slide" + (i === 0 ? " active" : "");
+    slide.dataset.idx = i;
+    slide.dataset.stage = stageId;
+    slide.innerHTML = `
+      <div class="slide-avatar">${s.initials}</div>
+      <div class="slide-body">
+        <div class="slide-role">${s.role}</div>
+        <div class="slide-name">${s.name}</div>
+        <div class="slide-quote">${s.quote}</div>
+      </div>
+    `;
+    stage.appendChild(slide);
+
+    const dot = document.createElement("button");
+    if (i === 0) dot.classList.add("active");
+    dot.addEventListener("click", () => jumpMonitor(i));
+    nav.appendChild(dot);
+  });
+}
+
+let currentMonSlide = 0;
+let monStart = Date.now();
+const MON_DUR = 6000;
+
+function startMonitorCarousel() {
+  function loop() {
+    const elapsed = Date.now() - monStart;
+    const pct = Math.min(100, (elapsed / MON_DUR) * 100);
+    const p1 = document.getElementById("monitorProgress");
+    const p2 = document.getElementById("monitorProgress2");
+    if (p1) p1.style.width = pct + "%";
+    if (p2) p2.style.width = pct + "%";
+    if (elapsed >= MON_DUR) {
+      jumpMonitor((currentMonSlide + 1) % SALUTI.length);
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+function jumpMonitor(i) {
+  document.querySelectorAll(".slide").forEach(s => {
+    s.classList.toggle("active", parseInt(s.dataset.idx) === i);
+  });
+  document.querySelectorAll(".monitor-nav button").forEach((b, idx) => {
+    b.classList.toggle("active", (idx % SALUTI.length) === i);
+  });
+  currentMonSlide = i;
+  monStart = Date.now();
+  const lbl = String(i + 1).padStart(2, "0") + " / " + String(SALUTI.length).padStart(2, "0");
+  const a = document.getElementById("monitorIdx");
+  const b = document.getElementById("monitorIdx2");
+  if (a) a.textContent = lbl;
+  if (b) b.textContent = lbl;
+}
+
+/* ═══════════════════════ TEMI ═══════════════════════ */
+function buildTemi() {
+  document.getElementById("temiMini").innerHTML = TEMI.slice(0, 8).map(t => `
+    <div class="theme-mini">
+      <div class="theme-mini-code">${t.code}</div>
+      <div class="theme-mini-label">${t.label}</div>
+      <div class="theme-mini-count"><strong>${t.count}</strong> riferimenti</div>
+    </div>
+  `).join("");
+  document.getElementById("temiGridFull").innerHTML = TEMI.map(t => `
+    <div class="tema-card">
+      <div class="tema-code">${t.code}</div>
+      <div class="tema-label">${t.label}</div>
+      <div class="tema-count"><strong>${t.count}</strong> riferimenti nel convegno</div>
+    </div>
+  `).join("");
+}
+
+/* ═══════════════════════ LISTA INTERVENTI ═══════════════════════ */
+function buildLista() {
+  document.getElementById("listaGrid").innerHTML = INTERVENTI.map(i => `
+    <div class="lista-card" data-id="${i.id}">
+      <div class="lista-head">
+        <span class="lista-time">⏱ ${i.time} · ${i.duration}</span>
+        <span class="lista-id">#${i.id}</span>
+      </div>
+      <div class="lista-relatore">${i.relatore}</div>
+      <div class="lista-titolo">${i.titolo}</div>
+      <div class="lista-tags">
+        ${i.tagLabels.slice(0,2).map(t => `<span class="lista-tag">${t}</span>`).join("")}
+      </div>
+    </div>
+  `).join("");
+  document.querySelectorAll(".lista-card").forEach(el => {
+    el.addEventListener("click", () => {
+      const i = INTERVENTI.find(x => x.id === el.dataset.id);
+      goToIntervento(i);
+    });
+  });
+}
+
+/* ═══════════════════════ PODCAST LIST ═══════════════════════ */
+function buildPodcastList() {
+  document.getElementById("podcastList").innerHTML = INTERVENTI.map((i, idx) => `
+    <div class="pod-row" data-id="${i.id}">
+      <div class="pod-row-num">${String(idx+1).padStart(2,"0")}</div>
+      <div class="pod-row-play">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="pod-row-body">
+        <div class="pod-row-title">${i.podTitle}</div>
+        <div class="pod-row-sub">${i.relatore} · ${i.role}</div>
+      </div>
+      <div class="pod-row-dur">${i.podSub.match(/\d+ min \d+ sec/)?.[0] || "—"}</div>
+    </div>
+  `).join("");
+  document.querySelectorAll(".pod-row").forEach(el => {
+    el.addEventListener("click", () => {
+      const i = INTERVENTI.find(x => x.id === el.dataset.id);
+      goToIntervento(i);
+      openInspectorPanel("podcast");
+    });
+  });
+}
+
+/* ═══════════════════════ DOCUMENTI ═══════════════════════ */
+const DOCUMENTI = [
+  { id: DRIVE.locandina, type: "Locandina", title: "Locandina del convegno",
+    subtitle: "Programma ufficiale · 476 KB", color: "#ea580c" },
+  { id: DRIVE.slideFileUnico, type: "Raccolta", title: "Slide · file unico",
+    subtitle: "Tutte le presentazioni riunite · 8,3 MB", color: "#1e3a8a" },
+  { id: DRIVE.slideCopertina, type: "Copertina", title: "Copertina evento",
+    subtitle: "01_COPERTINA · 1,6 MB", color: "#1e3a8a" },
+  { id: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3", type: "Saluti", title: "Saluti istituzionali",
+    subtitle: "02_SALUTI · 286 KB · interventi 01–05", color: "#1e3a8a" },
+  { id: "19OSES4JlbpakPE9f5zISVcWKUQ6bkxBh", type: "Introduzione", title: "Angelo Robotto — Introduzione",
+    subtitle: "03_ROBOTTO · 480 KB · #06", color: "#1e3a8a" },
+  { id: "1iBtGkfF9X-NFcc9vAiY3Gc8smo3LltMk", type: "L.R. 5/2026", title: "Giovanni Paludi — Cresci Piemonte",
+    subtitle: "04_PALUDI · 406 KB · #07", color: "#1e3a8a" },
+  { id: "1h3ESRNOQmcllRGcHPt0g80jkdobTZJq1", type: "L.R. 16/2018", title: "Introduzione L.R. 16",
+    subtitle: "05_LR 16 · 173 KB · #08", color: "#1e3a8a" },
+  { id: "114mIGd7Xy81IfluQucVuQIadj5Djb05c", type: "L.R. 16/2018", title: "Caterina Silva",
+    subtitle: "06_SILVA · 233 KB · #08", color: "#1e3a8a" },
+  { id: "1aEpYrGB86hXqNk_-ZFOIN7UYYHQUOOoP", type: "L.R. 16/2018", title: "Alessandro Mola",
+    subtitle: "07_MOLA · 519 KB · #08", color: "#1e3a8a" },
+  { id: "132KVsRxCxzJNyOiRi2CpqT5ius5p5bRv", type: "L.R. 16/2018", title: "Antonio Trifirò",
+    subtitle: "08_TRIFIRO · 222 KB · #08", color: "#1e3a8a" },
+  { id: "1k49p1hpR2jZ9J3Ka5zk5x47O0HpeeSpv", type: "Caso studio", title: "Beinette — rigenerazione",
+    subtitle: "09_BEINETTE · 4,2 MB · #09+#10", color: "#1e3a8a" },
+  { id: "1rkGNncS_vuuSLwjQBlWSgCsBF0YEblra", type: "L.R. 56/1977", title: "Giovanni Paludi — Revisione L.R. 56",
+    subtitle: "10_PALUDI · 487 KB · #11", color: "#1e3a8a" },
+  { id: "1rUNrgfWMBVKH7FPVVBNRgx8qJhXy2jN3", type: "Dibattito", title: "Panel conclusivo",
+    subtitle: "11_DIBATTITO · 256 KB · #12", color: "#1e3a8a" }
+];
+
+function buildDocs() {
+  document.getElementById("docsGrid").innerHTML = DOCUMENTI.map(d => `
+    <div class="doc-card" data-id="${d.id}">
+      <div class="doc-thumb" style="background:linear-gradient(135deg, ${d.color} 0%, ${d.color === '#ea580c' ? '#f97316' : '#3b5bb5'} 100%)">
+        <div>
+          <div class="doc-thumb-hdr">${d.type.toUpperCase()}</div>
+          <div class="doc-thumb-title">${d.title}</div>
+        </div>
+        <div class="doc-thumb-foot">
+          <span>PDF</span>
+          <span>DRIVE</span>
+        </div>
+      </div>
+      <div class="doc-info">
+        <div class="doc-info-name">${d.title}</div>
+        <div class="doc-info-meta">${d.subtitle}</div>
+      </div>
+    </div>
+  `).join("");
+  document.querySelectorAll(".doc-card").forEach(el => {
+    el.addEventListener("click", () => {
+      window.open(driveView(el.dataset.id), "_blank", "noopener");
+    });
+  });
+}
+
+/* ═══════════════════════ NAV ═══════════════════════ */
+function bindNav() {
+  document.querySelectorAll(".nav-item[data-view]").forEach(btn => {
+    btn.addEventListener("click", () => switchView(btn.dataset.view));
+  });
+}
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll(".nav-item[data-view]").forEach(b => {
+    b.classList.toggle("active", b.dataset.view === view);
+  });
+  document.querySelectorAll(".view, .view-intervento").forEach(v => {
+    v.classList.remove("active");
+  });
+  const el = document.querySelector(`[data-view="${view}"].view, [data-view="${view}"].view-intervento`);
+  if (el) el.classList.add("active");
+
+  const titles = {
+    panorama: ["📊 Panoramica", "dossier convegno"],
+    saluti: ["🎙 Saluti istituzionali", "carosello automatico"],
+    interventi: ["🗂 Interventi", "scaletta · 13 sessioni"],
+    intervento: ["▶ Intervento in ascolto", currentIntervento?.time || ""],
+    temi: ["🏷 Temi e normativa", "tassonomia"],
+    podcast: ["🎧 Podcast AI", "sintesi NotebookLM"],
+    documenti: ["📁 Documenti e slide", "archivio PDF"]
+  };
+  const [title, sub] = titles[view] || ["—", ""];
+  document.getElementById("wsTitle").innerHTML = title;
+  document.getElementById("wsSub").textContent = sub;
+}
+
+function goToIntervento(i) {
+  selectIntervento(i);
+  switchView("intervento");
+}
+
+/* ═══════════════════════ SELECT INTERVENTO ═══════════════════════ */
+function selectIntervento(i) {
+  currentIntervento = i;
+  document.querySelectorAll(".tl-node").forEach(el => {
+    el.classList.toggle("active", el.dataset.id === i.id);
+  });
+  document.getElementById("playerStatus").textContent = `Intervento ${i.id} di ${INTERVENTI.length}`;
+  document.getElementById("playerCue").textContent = i.cue;
+  document.getElementById("playerTs").textContent = i.ts_range;
+
+  // Inspector — Relatore
+  const avatar = document.getElementById("relAvatar");
+  avatar.textContent = i.initials;
+  document.getElementById("relHash").textContent = "#" + i.id;
+  document.getElementById("relName").textContent = i.relatore;
+  document.getElementById("relRole").textContent = i.role;
+  document.getElementById("relBio").textContent = i.bio;
+  document.getElementById("relDur").textContent = i.duration;
+  document.getElementById("relSlides").textContent = i.slidesCount + " slide";
+
+  // Trascrizione
+  document.getElementById("trTotal").textContent = i.transcript.length + " segmenti";
+  document.getElementById("trCount").textContent = i.transcript.length;
+  document.getElementById("trBody").innerHTML = i.transcript.map((line, idx) => `
+    <div class="tr-line ${idx === 0 ? "current" : ""}">
+      <span class="t">${line[0]}</span>
+      <span class="text">${line[1]}</span>
+    </div>
+  `).join("");
+
+  // Slide
+  const sid = i.slideFileId;
+  const iframe = document.getElementById("slideIframe");
+  const empty = document.getElementById("slideEmpty");
+  if (sid) {
+    iframe.src = drivePreview(sid);
+    iframe.style.display = "block";
+    empty.style.display = "none";
+    document.getElementById("slideOpen").href = driveView(sid);
+    document.getElementById("slideDown").href = driveDownload(sid);
+  } else {
+    iframe.src = "about:blank";
+    iframe.style.display = "none";
+    empty.style.display = "flex";
+    document.getElementById("slideEmptyTitle").textContent = i.relatore + " · nessuna slide";
+    document.getElementById("slideOpen").href = "#";
+    document.getElementById("slideDown").href = "#";
+  }
+  document.getElementById("slideTitle").textContent = i.slideTitle;
+  document.getElementById("slideSub").textContent = i.slideSub;
+
+  // Extra slides (co-relatori, es. intervento 08)
+  const extraBox = document.getElementById("slideExtra");
+  const extraList = document.getElementById("slideExtraList");
+  if (i.extraSlides && i.extraSlides.length) {
+    extraBox.style.display = "block";
+    extraList.innerHTML = i.extraSlides.map(e => `
+      <a href="${driveView(e.id)}" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:var(--bg-soft); border:1px solid var(--border); border-radius:4px; text-decoration:none; color:var(--text); font-size:12.5px; transition:border-color .15s" onmouseover="this.style.borderColor='var(--ance-blue)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span>📑 ${e.label}</span><span style="color:var(--ance-blue); font-family:'IBM Plex Mono',monospace; font-size:10px">APRI ↗</span>
+      </a>
+    `).join("");
+  } else {
+    extraBox.style.display = "none";
+  }
+
+  // Podcast
+  document.getElementById("podTitle").textContent = i.podTitle;
+  document.getElementById("podSub").textContent = i.podSub;
+  document.getElementById("podTotal").textContent = i.podSub.match(/\d+ min \d+ sec/)?.[0] || "—";
+
+  // Tags
+  document.getElementById("relTags").innerHTML = i.tagLabels.map(t => `<span class="tag">${t}</span>`).join("");
+}
+
+function markAsDone() {
+  if (!currentIntervento) return;
+  doneInterventi.add(currentIntervento.id);
+  saveProgress();
+  updateProgress();
+  document.querySelector(`.tl-node[data-id="${currentIntervento.id}"]`)?.classList.add("done");
+  showToast(`Segnato come ascoltato · #${currentIntervento.id}`);
+}
+
+function updateProgress() {
+  const n = doneInterventi.size;
+  document.getElementById("progressCount").textContent = n;
+  document.getElementById("progressFill").style.width = (n / INTERVENTI.length * 100) + "%";
+  // aggiorna timeline
+  INTERVENTI.forEach(i => {
+    if (doneInterventi.has(i.id)) {
+      document.querySelector(`.tl-node[data-id="${i.id}"]`)?.classList.add("done");
+    }
+  });
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem("ance_convegno_done", JSON.stringify([...doneInterventi]));
+  } catch (e) {}
+}
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem("ance_convegno_done");
+    if (raw) doneInterventi = new Set(JSON.parse(raw));
+  } catch (e) {}
+}
+
+/* ═══════════════════════ INSPECTOR ═══════════════════════ */
+function bindInspector() {
+  document.querySelectorAll(".insp-tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const panel = btn.dataset.panel;
+      if (btn.classList.contains("active") && !document.getElementById("inspector").classList.contains("closed")) {
+        // già attivo → chiude
+        document.getElementById("inspector").classList.add("closed");
+        btn.classList.remove("active");
+        return;
+      }
+      openInspectorPanel(panel);
+    });
+  });
+}
+function openInspectorPanel(panel) {
+  currentInspPanel = panel;
+  document.getElementById("inspector").classList.remove("closed");
+  document.querySelectorAll(".insp-tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.panel === panel);
+  });
+  document.querySelectorAll(".insp-panel").forEach(p => {
+    p.classList.toggle("active", p.dataset.panel === panel);
+  });
+}
+
+/* ═══════════════════════ SEARCH OVERLAY ═══════════════════════ */
+let ovrFilter = "all";
+function bindSearch() {
+  const input = document.getElementById("overlaySearchInput");
+  input.addEventListener("input", renderSearchResults);
+  document.querySelectorAll(".ovr-filter").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".ovr-filter").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      ovrFilter = btn.dataset.tag;
+      renderSearchResults();
+    });
+  });
+}
+function openOverlay() {
+  document.getElementById("overlay").classList.add("active");
+  setTimeout(() => {
+    document.getElementById("overlaySearchInput").focus();
+    renderSearchResults();
+  }, 50);
+}
+function closeOverlay() {
+  document.getElementById("overlay").classList.remove("active");
+  document.getElementById("overlaySearchInput").value = "";
+}
+function renderSearchResults() {
+  const q = document.getElementById("overlaySearchInput").value.toLowerCase().trim();
+  const box = document.getElementById("ovrResults");
+  const filtered = INTERVENTI.filter(i => {
+    const tagOk = ovrFilter === "all" || i.tags.includes(ovrFilter);
+    if (!tagOk) return false;
+    if (!q) return true;
+    return i.relatore.toLowerCase().includes(q) ||
+           i.titolo.toLowerCase().includes(q) ||
+           i.tagLabels.join(" ").toLowerCase().includes(q) ||
+           i.transcript.some(l => l[1].toLowerCase().includes(q)) ||
+           i.bio.toLowerCase().includes(q);
+  });
+
+  document.getElementById("ovrCount").textContent = filtered.length + " risultati";
+
+  if (filtered.length === 0) {
+    box.innerHTML = `<div class="ovr-empty">Nessun risultato per "<strong>${q}</strong>"</div>`;
+    return;
+  }
+
+  box.innerHTML = filtered.map(i => {
+    let matchHtml = "";
+    if (q) {
+      const match = i.transcript.find(l => l[1].toLowerCase().includes(q));
+      if (match) {
+        const re = new RegExp(`(${q})`, "ig");
+        matchHtml = `<div class="ovr-result-match">${match[0]} · ${match[1].replace(re, '<mark>$1</mark>')}</div>`;
+      }
+    }
+    return `
+      <div class="ovr-result" data-id="${i.id}">
+        <div class="ovr-result-top">
+          <span class="ovr-result-time">⏱ ${i.time}</span>
+          <span class="ovr-result-id">#${i.id}</span>
+          <span class="ovr-result-tag">${i.tagLabels[0]}</span>
+        </div>
+        <div class="ovr-result-name">${i.relatore}</div>
+        <div class="ovr-result-titolo">${i.titolo}</div>
+        ${matchHtml}
+      </div>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".ovr-result").forEach(el => {
+    el.addEventListener("click", () => {
+      const i = INTERVENTI.find(x => x.id === el.dataset.id);
+      closeOverlay();
+      goToIntervento(i);
+    });
+  });
+}
+
+/* ═══════════════════════ SHORTCUTS ═══════════════════════ */
+function toggleShortcuts() {
+  document.getElementById("shortcuts").classList.toggle("active");
+}
+function bindShortcuts() {
+  document.addEventListener("keydown", e => {
+    // Se sta scrivendo in un input, ignora le lettere singole
+    const inInput = /input|textarea/i.test(e.target.tagName);
+
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      openOverlay();
+      return;
+    }
+    if (e.key === "Escape") {
+      closeOverlay();
+      document.getElementById("shortcuts").classList.remove("active");
+      return;
+    }
+    if (inInput) return;
+
+    if (e.key === "?") { toggleShortcuts(); return; }
+    if (e.key === "h" || e.key === "H") {
+      document.getElementById("app").classList.toggle("header-collapsed");
+      return;
+    }
+    if (e.key === "t" || e.key === "T") { openInspectorPanel("trascrizione"); return; }
+    if (e.key === "s" || e.key === "S") { openInspectorPanel("slide"); return; }
+    if (e.key === "p" || e.key === "P") { openInspectorPanel("podcast"); return; }
+
+    // 1-9: salta a intervento
+    if (/^[1-9]$/.test(e.key)) {
+      const idx = parseInt(e.key) - 1;
+      if (INTERVENTI[idx]) goToIntervento(INTERVENTI[idx]);
+      return;
+    }
+
+    // ← → navigazione
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      if (!currentIntervento) return;
+      const curIdx = INTERVENTI.findIndex(x => x.id === currentIntervento.id);
+      const nextIdx = e.key === "ArrowLeft"
+        ? Math.max(0, curIdx - 1)
+        : Math.min(INTERVENTI.length - 1, curIdx + 1);
+      goToIntervento(INTERVENTI[nextIdx]);
+    }
+  });
+}
+
+/* ═══════════════════════ HEADER ═══════════════════════ */
+function bindHeader() {
+  document.getElementById("headerCollapse").addEventListener("click", e => {
+    e.stopPropagation();
+    document.getElementById("app").classList.toggle("header-collapsed");
+  });
+  document.getElementById("header").addEventListener("click", () => {
+    const app = document.getElementById("app");
+    if (app.classList.contains("header-collapsed")) {
+      app.classList.remove("header-collapsed");
+    }
+  });
+}
+
+/* ═══════════════════════ KPI ANIMATION ═══════════════════════ */
+function animateKPI() {
+  document.querySelectorAll("[data-target]").forEach(el => {
+    const target = parseInt(el.dataset.target, 10);
+    const t0 = Date.now();
+    const dur = 900;
+    function step() {
+      const p = Math.min(1, (Date.now() - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const n = Math.round(target * eased);
+      if (el.childNodes.length === 0 || el.childNodes[0].nodeType === 3) {
+        el.textContent = n;
+      } else {
+        el.firstChild.nodeValue = n;
+      }
+      if (p < 1) requestAnimationFrame(step);
+    }
+    step();
+  });
+}
+
+/* ═══════════════════════ PODCAST PLAYER ═══════════════════════ */
+function buildWaveform() {
+  const wv = document.getElementById("waveform");
+  let html = "";
+  for (let i = 0; i < 48; i++) {
+    const h = 25 + Math.abs(Math.sin(i * 0.4) * 60) + Math.random() * 30;
+    html += `<div class="wv-bar" style="height:${Math.min(100, h)}%"></div>`;
+  }
+  wv.innerHTML = html;
+}
+let podPlaying = false, podPos = 0, podTimer = null;
+function initPodcast() {
+  const btn = document.getElementById("podPlay");
+  btn.addEventListener("click", () => {
+    podPlaying = !podPlaying;
+    btn.innerHTML = podPlaying
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    if (podPlaying) {
+      podTimer = setInterval(() => {
+        podPos = (podPos + 1) % 48;
+        const bars = document.querySelectorAll(".wv-bar");
+        bars.forEach((b, i) => {
+          b.classList.toggle("played", i < podPos);
+          b.classList.toggle("current", i === podPos);
+        });
+        const sec = podPos * 5;
+        document.getElementById("podCurrent").textContent =
+          String(Math.floor(sec/60)).padStart(2,"0") + ":" + String(sec%60).padStart(2,"0");
+      }, 250);
+    } else {
+      clearInterval(podTimer);
+    }
+  });
+}
+
+/* ═══════════════════════ TOAST ═══════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(() => t.classList.remove("show"), 2000);
+}
+</script>
+</body>
+</html>
