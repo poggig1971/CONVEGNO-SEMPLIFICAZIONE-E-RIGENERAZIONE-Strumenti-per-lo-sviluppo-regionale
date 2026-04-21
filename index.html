@@ -1840,7 +1840,7 @@ html, body {
         <button class="nav-item" data-view="interventi">
           <span class="nav-icon">🗂</span>
           <span class="label-text">Interventi</span>
-          <span class="nav-count">13</span>
+          <span class="nav-count">8</span>
         </button>
         <button class="nav-item" data-view="temi">
           <span class="nav-icon">🏷</span>
@@ -1855,7 +1855,7 @@ html, body {
         <button class="nav-item" data-view="documenti">
           <span class="nav-icon">📁</span>
           <span class="label-text">Documenti</span>
-          <span class="nav-count">11</span>
+          <span class="nav-count">13</span>
         </button>
 
         <div class="nav-section">Strumenti</div>
@@ -1969,7 +1969,7 @@ html, body {
             <!-- Monitor saluti -->
             <div class="monitor-card">
               <div class="monitor-head">
-                <span>🎥 Saluti istituzionali · <em style="font-style:italic; opacity:0.75; font-weight:400">citazioni placeholder</em></span>
+                <span>🎥 Saluti istituzionali</span>
                 <span class="idx" id="monitorIdx">01 / 05</span>
               </div>
               <div class="monitor-stage" id="monitorStage"></div>
@@ -1985,6 +1985,29 @@ html, body {
               <span class="sub">scorrimento · click per filtrare</span>
             </div>
             <div class="themes-mini-grid" id="temiMini"></div>
+          </div>
+
+          <!-- Comunicato stampa -->
+          <div class="themes-mini" style="margin-top:16px">
+            <div class="themes-mini-head">
+              <span>📰 Dal comunicato stampa · 21 aprile 2026</span>
+              <span class="sub">dichiarazioni ufficiali</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px; margin-top:10px">
+              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--ance-orange); border-radius:4px">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-orange); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Marco Gallo</div>
+                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«Regole chiare e tempi certi che permettano alle nostre imprese di progettare con fiducia il futuro degli spazi urbani.»</div>
+              </div>
+              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--ance-blue); border-radius:4px">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ance-blue); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Paola Malabaila</div>
+                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«La semplificazione normativa e la rigenerazione urbana sono condizioni necessarie per garantire competitività e sviluppo.»</div>
+              </div>
+              <div style="padding:14px 16px; background:var(--bg-soft); border-left:3px solid var(--text-dim); border-radius:4px">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; font-weight:600">Davide Gilardino · ANCI</div>
+                <div style="font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; font-style:italic">«La legge Cresci Piemonte rappresenta un cambio di passo decisivo.»</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--text-faint); margin-top:6px; letter-spacing:0.03em">Dichiarazione pre-evento · sostituito dal Vicepres. Cavassa</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2030,8 +2053,8 @@ html, body {
         <!-- VIEW: INTERVENTI (lista) -->
         <div class="view" data-view="interventi">
           <div class="view-pad">
-            <h2 class="view-title"><span class="icon">🗂</span>Interventi · scaletta completa</h2>
-            <p class="view-sub">Clicca una scheda per aprire il player video con trascrizione e slide</p>
+            <h2 class="view-title"><span class="icon">🗂</span>Interventi tecnici · 8 sessioni</h2>
+            <p class="view-sub">Dall'introduzione al dibattito conclusivo. Clicca una scheda per aprire il player video, trascrizione e slide.</p>
             <div class="lista-grid" id="listaGrid"></div>
           </div>
         </div>
@@ -2262,20 +2285,24 @@ function driveView(id) { return id ? `https://drive.google.com/file/d/${id}/view
 function driveDownload(id) { return id ? `https://drive.google.com/uc?export=download&id=${id}` : null; }
 function driveFolder(id) { return `https://drive.google.com/drive/folders/${id}`; }
 
-// NB: le citazioni sono PLACEHOLDER · saranno sostituite con estratti reali
-// dalla trascrizione del convegno appena disponibile
 // Ordine reale dei saluti: Gallo, Malabaila, Amalberto, Marrone, Cavassa
+// Quote: estratti dal comunicato stampa ANCE Piemonte VdA · 2026.04.21 dove verificati
 const SALUTI = [
   { initials: "MG", role: "Assessore all'Urbanistica · Regione Piemonte", name: "Marco Gallo",
-    quote: "Il Cresci Piemonte è un atto politico: mette i Comuni in condizione di decidere, senza più nascondersi dietro la norma." },
+    quote: "Regole chiare e tempi certi per progettare con fiducia il futuro degli spazi urbani.",
+    quoteSource: "Comunicato stampa · 2026.04.21" },
   { initials: "PM", role: "Presidente ANCE Piemonte VdA", name: "Paola Malabaila",
-    quote: "I costruttori chiedono regole leggibili e tempi certi: senza questo, nessuna rigenerazione è davvero possibile." },
+    quote: "Semplificazione normativa e rigenerazione urbana sono condizioni necessarie per competitività e sviluppo.",
+    quoteSource: "Comunicato stampa · 2026.04.21" },
   { initials: "AA", role: "Presidente Confindustria Piemonte", name: "Andrea Amalberto",
-    quote: "L'edilizia è l'ossatura dell'economia regionale: ogni semplificazione normativa è investimento produttivo." },
+    quote: null,
+    quoteSource: "In attesa di trascrizione dal video" },
   { initials: "MM", role: "Vicepresidente Regione Piemonte", name: "Maurizio Marrone",
-    quote: "Un saluto a nome della Regione Piemonte e un ringraziamento ad ANCE per questa iniziativa." },
-  { initials: "SC", role: "ANCI Piemonte", name: "Silvia Cavassa",
-    quote: "I Sindaci sono in prima linea sulla rigenerazione urbana: servono strumenti chiari, non solo responsabilità." }
+    quote: null,
+    quoteSource: "In attesa di trascrizione dal video" },
+  { initials: "SC", role: "Vicepresidente ANCI Piemonte", name: "Silvia Cavassa",
+    quote: null,
+    quoteSource: "In attesa di trascrizione dal video" }
 ];
 
 const INTERVENTI = [
@@ -2324,10 +2351,10 @@ const INTERVENTI = [
       ["00:45:00", "[Trascrizione da produrre · saluto Vicepresidente Marrone]"]
     ]},
   { id: "05", time: "09:50", ts_range: "00:50:00 — 00:55:00", duration: "5 min",
-    relatore: "Silvia Cavassa", initials: "SC", role: "ANCI Piemonte",
+    relatore: "Silvia Cavassa", initials: "SC", role: "Vicepresidente ANCI Piemonte",
     titolo: "Saluto dei Comuni piemontesi", tags: ["saluti"], tagLabels: ["Saluti", "Enti locali"],
     cue: "I Sindaci e la rigenerazione urbana",
-    bio: "Rappresentante di ANCI Piemonte. Porta il saluto dei Comuni piemontesi in sostituzione del Presidente Gilardino. Interviene anche nel panel conclusivo.",
+    bio: "Vicepresidente di ANCI Piemonte. Porta il saluto dei Comuni piemontesi in sostituzione del Presidente Gilardino. Interviene anche nel panel conclusivo (#12).",
     slideTitle: "Saluti istituzionali", slideSub: "SLIDE CONDIVISE · SALUTI", slidesCount: 1,
     slideFileId: "1cZ7B4N-JDPvosKmQOnn4U5hDCna1wtu3",
     podTitle: "I Sindaci e la riforma urbanistica", podSub: "sintesi · da generare",
@@ -2524,12 +2551,18 @@ function buildMonitor(stageId, navId) {
     slide.className = "slide" + (i === 0 ? " active" : "");
     slide.dataset.idx = i;
     slide.dataset.stage = stageId;
+    const quoteHtml = s.quote
+      ? `<div class="slide-quote">${s.quote}</div>
+         <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-faint); letter-spacing:0.04em; margin-top:8px; padding-left:12px">📰 ${s.quoteSource}</div>`
+      : `<div style="display:inline-flex; align-items:center; gap:8px; padding:6px 10px; background:var(--bg-soft); border:1px dashed var(--border-strong); border-radius:4px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); letter-spacing:0.03em; margin-top:4px">
+           ⏳ ${s.quoteSource}
+         </div>`;
     slide.innerHTML = `
       <div class="slide-avatar">${s.initials}</div>
       <div class="slide-body">
         <div class="slide-role">${s.role}</div>
         <div class="slide-name">${s.name}</div>
-        <div class="slide-quote">${s.quote}</div>
+        ${quoteHtml}
       </div>
     `;
     stage.appendChild(slide);
@@ -2595,24 +2628,50 @@ function buildTemi() {
 }
 
 /* ═══════════════════════ LISTA INTERVENTI ═══════════════════════ */
+// Sezioni del convegno (solo interventi tecnici, esclusi saluti)
+const SEZIONI = [
+  { label: "Introduzione", ids: ["06"] },
+  { label: "IL CRESCI PIEMONTE · L.R. 5/2026", ids: ["07"] },
+  { label: "La L.R. 16/2018 · rigenerazione urbana", ids: ["08"] },
+  { label: "Un esempio concreto · Beinette (CN)", ids: ["09", "10"] },
+  { label: "Aggiornamento sulla L.R. 56/1977", ids: ["11"] },
+  { label: "Dibattito", ids: ["12"] },
+  { label: "Conclusioni", ids: ["13"] }
+];
+
 function buildLista() {
-  document.getElementById("listaGrid").innerHTML = INTERVENTI.map(i => `
-    <div class="lista-card" data-id="${i.id}">
-      <div class="lista-head">
-        <span class="lista-time">⏱ ${i.time} · ${i.duration}</span>
-        <span class="lista-id">#${i.id}</span>
-      </div>
-      <div class="lista-relatore">${i.relatore}</div>
-      <div class="lista-titolo">${i.titolo}</div>
-      <div class="lista-tags">
-        ${i.tagLabels.slice(0,2).map(t => `<span class="lista-tag">${t}</span>`).join("")}
-      </div>
-    </div>
-  `).join("");
-  document.querySelectorAll(".lista-card").forEach(el => {
-    el.addEventListener("click", () => {
-      const i = INTERVENTI.find(x => x.id === el.dataset.id);
-      goToIntervento(i);
+  const grid = document.getElementById("listaGrid");
+  grid.innerHTML = "";
+  // Rendering raggruppato per sezione
+  SEZIONI.forEach(sez => {
+    const ids = sez.ids.filter(id => INTERVENTI.find(i => i.id === id));
+    if (!ids.length) return;
+    const sectionHdr = document.createElement("div");
+    sectionHdr.style.cssText = "grid-column: 1/-1; margin-top:14px; margin-bottom:4px; display:flex; align-items:center; gap:10px";
+    sectionHdr.innerHTML = `
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ance-orange); letter-spacing:0.12em; text-transform:uppercase; font-weight:600">§ ${sez.label}</div>
+      <div style="flex:1; height:1px; background:var(--border)"></div>
+    `;
+    grid.appendChild(sectionHdr);
+
+    ids.forEach(id => {
+      const i = INTERVENTI.find(x => x.id === id);
+      const card = document.createElement("div");
+      card.className = "lista-card";
+      card.dataset.id = i.id;
+      card.innerHTML = `
+        <div class="lista-head">
+          <span class="lista-time">⏱ ${i.time} · ${i.duration}</span>
+          <span class="lista-id">#${i.id}</span>
+        </div>
+        <div class="lista-relatore">${i.relatore}</div>
+        <div class="lista-titolo">${i.titolo}</div>
+        <div class="lista-tags">
+          ${i.tagLabels.slice(0,2).map(t => `<span class="lista-tag">${t}</span>`).join("")}
+        </div>
+      `;
+      card.addEventListener("click", () => goToIntervento(i));
+      grid.appendChild(card);
     });
   });
 }
@@ -3075,3 +3134,4 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
