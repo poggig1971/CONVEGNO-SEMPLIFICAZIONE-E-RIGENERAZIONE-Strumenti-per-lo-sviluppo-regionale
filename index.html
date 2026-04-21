@@ -48,14 +48,18 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body {
   background: var(--bg);
   color: var(--text);
   font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  height: 100vh;
+  height: 100%;
+  overflow: hidden;
+}
+.app {
+  height: 100dvh;
+  min-height: 0;
   overflow: hidden;
 }
 
